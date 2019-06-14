@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/logo.svg?sanitize=true" width="250"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/logo.svg?sanitize=true" width="450"></p>
 
 <hr/>
 
@@ -21,7 +21,7 @@
 <br/>
 
 <h2>Preview</h2>
-<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/webserial.png" width="450"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/webserial.png?sanitize=true" width="450"></p>
 
 <br/>
 <br/>
@@ -76,5 +76,5 @@ If you want to donate to the author then <b>you can become my patron</b>, It rea
 ESP-DASH is licensed under General Public License v3 ( GPLv3 ).
 <br/>
 <br/>
-<img src="https://img.shields.io/github/license/ayushsharma82/ESP-DASH.svg?style=for-the-badge" />
+<img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
 </div>
