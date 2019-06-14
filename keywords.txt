@@ -1,5 +1,5 @@
-KEYWORD1	WebSerial
-KEYWORD2	begin
-KEYWORD2	print
-KEYWORD2	println
-KEYWORD2	msgCallback
+WebSerial	KEYWORD1
+begin		KEYWORD2
+print		KEYWORD2
+println		KEYWORD2
+msgCallback	KEYWORD2
