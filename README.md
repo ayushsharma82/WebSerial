@@ -92,11 +92,11 @@ WebSerial has 2 main functions:
 
 `println` - prints the data sent over WebSerial with a newline character.
 
-Both functions support the following datatypes: `String`, `const char`, `char`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, `double`, `float`.  
+
+Both functions support the following datatypes: `String`, `const char`, `char`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, `double`, `float`.
+
 
 <br>
-<br/>
-<br/>
 
 <h2>Contributions</h2>
 <p>Every Contribution to this repository is highly appriciated! Don't fear to create pull requests which enhance or fix the library as ultimatly you are going to help everybody.</p>
