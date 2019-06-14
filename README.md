@@ -79,7 +79,7 @@ Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/mas
 <h2>Documentation</h2>
 <p>WebSerial is very similar to the default Serial Monitor Library of Arduino.</p>
 
-Please see `Demo` examples for better understanding on how to setup WebSerial for your Project: (Click Here)[https://github.com/ayushsharma82/WebSerial/blob/master/examples/ESP8266_Demo/ESP8266_Demo.ino]
+Please see `Demo` examples for better understanding on how to setup WebSerial for your Project: [Click Here](https://github.com/ayushsharma82/WebSerial/blob/master/examples/ESP8266_Demo/ESP8266_Demo.ino)
 
 
 WebSerial has 2 main functions:
