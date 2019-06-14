@@ -58,6 +58,43 @@
 </p>
 
 <br/>
+
+<h2>How to Install</h2>
+
+###### Directly Through Arduino IDE ( Currently Submitted for Approval. Use Mannual Install till it gets Approved.)
+Go to Sketch > Include Library > Library Manager > Search for "WebSerial" > Install
+
+###### Manual Install
+
+For Windows: Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip) and extract the .zip in Documents>Arduino>Libraries>{Place "WebSerial" folder Here}
+
+For Linux: Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip) and extract the .zip in Sketchbook>Libraries>{Place "WebSerial" folder Here}
+
+###### Manually through IDE
+
+Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip), Go to Sketch>Include Library>Add .zip Library> Select the Downloaded .zip File.
+
+<br>
+
+<h2>Documentation</h2>
+<p>WebSerial is very similar to the default Serial Monitor Library of Arduino.</p>
+
+Please see `Demo` examples for better understanding on how to setup WebSerial for your Project: (Click Here)[https://github.com/ayushsharma82/WebSerial/blob/master/examples/ESP8266_Demo/ESP8266_Demo.ino]
+
+
+WebSerial has 2 main functions:
+- `print`
+- `println`
+
+
+`print` - simply prints the data sent over WebSerial without any newline character.
+
+
+`println` - prints the data sent over WebSerial with a newline character.
+
+Both functions support the following datatypes: `String`, `const char`, `char`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, `double`, `float`.  
+
+<br>
 <br/>
 <br/>
 
