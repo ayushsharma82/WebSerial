@@ -96,6 +96,8 @@ WebSerial has 2 main functions:
 Both functions support the following datatypes: `String`, `const char`, `char`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, `double`, `float`.
 
 
+<b>To Access Webserial:</b> Go to `<IP Address>/webserial` in your browser ( where `<IP Address>` is the IP of your ESP).
+
 <br>
 
 <h2>Contributions</h2>
