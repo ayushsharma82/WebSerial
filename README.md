@@ -70,6 +70,10 @@ For Windows: Download the [Repository](https://github.com/ayushsharma82/WebSeria
 
 For Linux: Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip) and extract the .zip in Sketchbook>Libraries>{Place "WebSerial" folder Here}
 
+Include other library
+https://github.com/me-no-dev/ESPAsyncWebServer
+https://github.com/me-no-dev/AsyncTCP
+
 ###### Manually through IDE
 
 Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip), Go to Sketch>Include Library>Add .zip Library> Select the Downloaded .zip File.
