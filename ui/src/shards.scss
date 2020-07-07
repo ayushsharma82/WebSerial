@@ -1,0 +1,16 @@
+// Core
+@import "bootstrap/scss/_functions.scss";
+
+@import "shards-ui/src/scss/_mixins.scss";
+@import "shards-ui/src/scss/_variables.scss";
+@import "shards-ui/src/scss/_root.scss";
+@import "shards-ui/src/scss/_reboot.scss";
+@import "shards-ui/src/scss/_type.scss";
+@import "shards-ui/src/scss/_forms.scss";
+@import "shards-ui/src/scss/_input-group.scss";
+@import "shards-ui/src/scss/_custom-forms.scss";
+@import "shards-ui/src/scss/_buttons.scss";
+
+//  Components
+@import "shards-ui/src/scss/_card.scss";
+@import "shards-ui/src/scss/_utilities.scss";

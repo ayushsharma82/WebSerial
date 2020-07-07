@@ -1,7 +1,6 @@
 # Prerequisites
 *.d
 .vscode/
-webpage/
 
 # Object files
 *.o

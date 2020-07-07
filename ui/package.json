@@ -1,0 +1,31 @@
+{
+  "name": "webpage",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@gfx/zopfli": "^1.0.14",
+    "bootstrap": "^4.5.0",
+    "core-js": "^2.6.11",
+    "shards-ui": "^2.1.2",
+    "vue": "^2.6.11",
+    "vue-feather-icons": "^4.22.0",
+    "webpack-shell-plugin": "^0.5.0",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-plugin-eslint": "^3.12.1",
+    "@vue/cli-service": "^3.12.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.2.3",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^7.3.1",
+    "vue-template-compiler": "^2.6.11"
+  }
+}
