@@ -3,13 +3,13 @@
 <hr/>
 
 <p align="center">
-<!-- <img src="https://img.shields.io/travis/com/ayushsharma82/WebSerial.svg?style=for-the-badge" />
-&nbsp; -->
 <img src="https://img.shields.io/github/last-commit/ayushsharma82/WebSerial.svg?style=for-the-badge" />
+&nbsp;
+<img src="https://img.shields.io/travis/com/ayushsharma82/WebSerial/master?style=for-the-badge" />
 &nbsp;
 <img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
 &nbsp;
-<a href="https://www.patreon.com/bePatron?u=16780597" target="_blank"><img src="https://img.shields.io/badge/patreon-donate-orange.svg?style=for-the-badge&logo=patreon" /></a>
+<a href="https://www.buymeacoffee.com/6QGVpSj" target="_blank"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-%245-orange?style=for-the-badge&logo=buy-me-a-coffee" /></a>
 </p>
 
 <hr/>
@@ -43,17 +43,17 @@
 <h2>Dependencies</h2>
 <p>
   <h5>For ESP8266:</h5>
-  <ul style="list-style-position: inside;">
-      <li>ESP8266 Arduino Core - <b>v2.5.0</b></li>
-      <li>ESPAsyncTCP - <b>v1.2.0</b></li>
-  	  <li>ESPAsyncWebServer - <b>v1.2.0</b></li>
+  <ul>
+      <li>ESP8266 Arduino Core - <b>(latest)</b></li>
+      <li>ESPAsyncTCP - <b>v1.2.2</b></li>
+  	  <li>ESPAsyncWebServer - <b>v1.2.3</b></li>
   </ul>
   
   <h5>For ESP32:</h5>
-  <ul style="list-style-position: inside;">
-      <li>ESP32 Arduino Core - <b>v1.0.1</b></li>
-      <li>AsyncTCP - <b>v1.0.3</b></li>
-  	  <li>ESPAsyncWebServer - <b>v1.2.0</b></li>
+  <ul>
+      <li>ESP32 Arduino Core - <b>(latest)</b></li>
+      <li>AsyncTCP - <b>v1.1.1</b></li>
+  	  <li>ESPAsyncWebServer - <b>v1.2.3</b></li>
   </ul>
 </p>
 
@@ -107,16 +107,16 @@ Both functions support the following datatypes: `String`, `const char`, `char`, 
 <h2>Contributions</h2>
 <p>Every Contribution to this repository is highly appriciated! Don't fear to create pull requests which enhance or fix the library as ultimatly you are going to help everybody.</p>
 <p>
-If you want to donate to the author then <b>you can become my patron</b>, It really helps me keep these libraries updated:
+If you want to donate to the author then <b>you can buy me a coffee</b>, It really helps me keep these libraries updated:
 <br/><br/>
-<a href="https://www.patreon.com/bePatron?u=16780597" target="_blank"><img src="https://img.shields.io/badge/patreon-donate-orange.svg?style=for-the-badge&logo=patreon" /></a>
+<a href="https://www.buymeacoffee.com/6QGVpSj" target="_blank"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-%245-orange?style=for-the-badge&logo=buy-me-a-coffee" /></a>
 </p>
 <br/>
 <br/>
 
 
 <h2>License</h2>
-ESP-DASH is licensed under General Public License v3 ( GPLv3 ).
+WebSerial is licensed under General Public License v3 ( GPLv3 ).
 <br/>
 <br/>
 <img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
