@@ -61,7 +61,7 @@
 
 <h2>How to Install</h2>
 
-###### Directly Through Arduino IDE ( Currently Submitted for Approval. Use Mannual Install till it gets Approved.)
+###### Directly Through Arduino IDE 
 Go to Sketch > Include Library > Library Manager > Search for "WebSerial" > Install
 
 ###### Manual Install
