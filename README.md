@@ -20,10 +20,23 @@
 
 <br/>
 
-<h2>Preview</h2>
+<h2 align="center">Preview</h2>
 <p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/webserial.PNG" width="850"></p>
 
 <br/>
+<br/>
+<br/>
+
+<h2 align="center">Upgrade to Pro</h2>
+
+<p align="center">WebSerial has become more exciting! Checkout the Pro version of the library: https://webserial.pro</p>
+
+<p align="center">
+  <a href="https://webserial.pro" target="_blank">
+  <img src="/docs/promo.png" alt="WebSerialPro">
+  </a>
+</p>
+
 <br/>
 <br/>
 
