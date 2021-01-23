@@ -29,7 +29,10 @@
 
 <h2 align="center">Upgrade to Pro</h2>
 
-<p align="center">WebSerial has become more exciting! Checkout the Pro version of the library: https://webserial.pro</p>
+<p align="center">WebSerial has become more exciting! Checkout the Pro version of the library: https://webserial.pro.
+  <br>
+  By purchasing WebSerial Pro, you are directly supporting the Author and his work :)
+</p>
 
 <p align="center">
   <a href="https://webserial.pro" target="_blank">
