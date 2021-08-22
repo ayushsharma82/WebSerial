@@ -1,3 +1,12 @@
+/*
+  WebSerial Demo AP
+  ------
+  This example code works for both ESP8266 & ESP32 Microcontrollers
+  WebSerial is accessible at 192.168.4.1/webserial URL.
+
+  Author: Ayush Sharma
+  Checkout WebSerial Pro: https://webserial.pro
+*/
 #include <Arduino.h>
 #if defined(ESP8266)
   #include <ESP8266WiFi.h>

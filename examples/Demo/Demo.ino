@@ -1,3 +1,12 @@
+/*
+  WebSerial Demo
+  ------
+  This example code works for both ESP8266 & ESP32 Microcontrollers
+  WebSerial is accessible at your ESP's <IPAddress>/webserial URL.
+
+  Author: Ayush Sharma
+  Checkout WebSerial Pro: https://webserial.pro
+*/
 #include <Arduino.h>
 #if defined(ESP8266)
   #include <ESP8266WiFi.h>
