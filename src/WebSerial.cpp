@@ -33,7 +33,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url){
 
     _server->addHandler(_ws);
 
-    #if defined(DEBUG)
+    #if defined(WEBSERIAL_DEBUG)
         DEBUG_WEB_SERIAL("Attached AsyncWebServer along with Websockets");
     #endif
 }
@@ -118,7 +118,7 @@ void WebSerialClass::println(double m){
     _ws->textAll(String(m)+"\n");
 }
 
-#if defined(DEBUG)
+#if defined(WEBSERIAL_DEBUG)
     void WebSerialClass::DEBUG_WEB_SERIAL(const char* message){
         Serial.println("[WebSerial] "+message);
     }
