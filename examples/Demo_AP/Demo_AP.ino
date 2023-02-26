@@ -54,6 +54,6 @@ void loop() {
     WebSerial.print(F("IP address: "));
     WebSerial.println(WiFi.localIP());
     WebSerial.printf("Millis=%lu\n", millis());
-    WebSerial.printf("Free heap=[%lu]\n", ESP.getFreeHeap());
+    WebSerial.printf("Free heap=[%u]\n", ESP.getFreeHeap());
 
 }
