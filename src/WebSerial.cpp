@@ -43,79 +43,14 @@ void WebSerialClass::msgCallback(RecvMsgHandler _recv){
 }
 
 // Print
-void WebSerialClass::print(String m){
-    _ws->textAll(m);
+size_t WebSerialClass::write(uint8_t m) {
+  _ws->textAll((const char *)&(m), 1);
+  return(1);
 }
 
-void WebSerialClass::print(const char *m){
-    _ws->textAll(m);
-}
-
-void WebSerialClass::print(char *m){
-    _ws->textAll(m);
-}
-
-void WebSerialClass::print(int m){
-    _ws->textAll(String(m));
-}
-
-void WebSerialClass::print(uint8_t m){
-    _ws->textAll(String(m));
-}
-
-void WebSerialClass::print(uint16_t m){
-    _ws->textAll(String(m));
-}
-
-void WebSerialClass::print(uint32_t m){
-    _ws->textAll(String(m));
-}
-
-void WebSerialClass::print(double m){
-    _ws->textAll(String(m));
-}
-
-void WebSerialClass::print(float m){
-    _ws->textAll(String(m));
-}
-
-
-// Print with New Line
-
-void WebSerialClass::println(String m){
-    _ws->textAll(m+"\n");        
-}
-
-void WebSerialClass::println(const char *m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(char *m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(int m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(uint8_t m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(uint16_t m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(uint32_t m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(float m){
-    _ws->textAll(String(m)+"\n");
-}
-
-void WebSerialClass::println(double m){
-    _ws->textAll(String(m)+"\n");
+size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
+  _ws->textAll((const char *)buffer, size);
+  return(size);
 }
 
 #if defined(WEBSERIAL_DEBUG)
