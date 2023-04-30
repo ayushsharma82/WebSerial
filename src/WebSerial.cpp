@@ -13,6 +13,11 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url){
     });
 
     _ws->onEvent([&](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) -> void {
+        // fix warnings: [-Wunused-parameter]
+        static_cast<void>(server);
+        static_cast<void>(client);
+        static_cast<void>(arg);
+
         if(type == WS_EVT_CONNECT){
             #if defined(DEBUG)
                 DEBUG_WEB_SERIAL("Client connection received");
