@@ -40,7 +40,6 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url){
 
 void WebSerialClass::end(){
     _server->removeHandler(_ws);
-    _ws->stop();
     delete _ws;
     #if defined(WEBSERIAL_DEBUG)
         DEBUG_WEB_SERIAL("Detached AsyncWebServer along with Websockets");
