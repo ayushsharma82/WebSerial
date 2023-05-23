@@ -29,6 +29,8 @@ class WebSerialClass : public Print {
 public:
     void begin(AsyncWebServer *server, const char* url = "/webserial");
 
+    void end();
+
     void msgCallback(RecvMsgHandler _recv);
 
     // Print
