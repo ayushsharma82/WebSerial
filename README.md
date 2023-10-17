@@ -32,13 +32,12 @@
 <p align="center">
 Checkout the Pro version of the WebSerial library which comes with enhanced & snappy UI, along with 'clear' & 'lock scroll' buttons on the monitor interface. Best of all, it's only 10KB in size compared to 50KB of regular WebSerial. <br><br> <b>Available Here: </b>
 <ol align="center">
-  <li>https://www.buymeacoffee.com/6QGVpSj/e/25091</li>
-  <li>https://webserial.pro</li>
+  <li><a href="https://webserial.pro" target="_blank">Official Website</a></li>
 </ol>
 </p>
 
 <p align="center">
-  <a href="https://www.buymeacoffee.com/6QGVpSj/e/25091" target="_blank">
+  <a href="https://webserial.pro" target="_blank">
   <img src="/docs/promo.png" alt="WebSerialPro">
   </a>
 </p>
