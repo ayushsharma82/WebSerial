@@ -38,6 +38,14 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url){
     #endif
 }
 
+void WebSerialClass::end(){
+    _server->removeHandler(_ws);
+    delete _ws;
+    #if defined(WEBSERIAL_DEBUG)
+        DEBUG_WEB_SERIAL("Detached AsyncWebServer along with Websockets");
+    #endif
+}
+
 void WebSerialClass::msgCallback(RecvMsgHandler _recv){
     _RecvFunc = _recv;
 }
