@@ -14,7 +14,7 @@
     #define HARDWARE "ESP32"
     #include "WiFi.h"
     #include "AsyncTCP.h"
-    #include "ESPAsyncWebServer.h"
+    #include "ESPAsyncWebSrv.h"
 #endif
 
 #include "webserial_webpage.h"
