@@ -1,7 +1,7 @@
 {
   "name": "WebSerial",
-  "keywords": "WebSerial, serial, monitor, ESP8266, ESP32, webpage, websocket, wireless",
-  "description": "WebSerial is a webpage based Serial Monitor to log, monitor, or debug your code remotely.",
+  "keywords": "WebSerial, remote, terminal, serial, monitor, ESP8266, ESP32, webpage, websocket, wireless",
+  "description": "WebSerial is a remote terminal which is accessible via browser to log, monitor or debug your firmware remotely.",
   "repository":
   {
     "type": "git",
@@ -15,7 +15,7 @@
       "maintainer": true
     }
   ],
-  "version": "1.4.0",
+  "version": "2.0.0",
   "frameworks": "arduino",
-  "platforms": "espressif"
+  "platforms": ["espressif8266", "espressif32"]
 }

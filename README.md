@@ -1,17 +1,13 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/logo.svg?sanitize=true" width="450"></p>
-
-<hr/>
-
-<p align="center">
+<p align="center"><img src="/docs/feature.png?sanitize=true&raw=true" width="1200"></p>
+<br/>
+<p>
 <img src="https://img.shields.io/github/last-commit/ayushsharma82/WebSerial.svg?style=for-the-badge" />
 &nbsp;
 <img src="https://img.shields.io/github/actions/workflow/status/ayushsharma82/WebSerial/ci.yml?branch=master&style=for-the-badge" />
 &nbsp;
 <img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
-&nbsp;
-<a href="https://www.buymeacoffee.com/6QGVpSj" target="_blank"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-%245-orange?style=for-the-badge&logo=buy-me-a-coffee" /></a>
 </p>
-
+<br/>
 <hr/>
 
 <br/>
@@ -20,8 +16,8 @@
 
 <br/>
 
-<h2 align="center">Preview</h2>
-<p align="center"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/docs/webserial.PNG" width="850"></p>
+<h2>Preview</h2>
+<p align="center"><img src="/docs/preview.png" width="900"></p>
 
 <br/>
 <br/>

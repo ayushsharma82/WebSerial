@@ -1,4 +1,5 @@
 # Prerequisites
+.DS_Store
 *.d
 .vscode/
 
@@ -51,3 +52,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+portal/
