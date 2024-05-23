@@ -36,7 +36,6 @@ WebSerial works on the following microcontrollers/boards:
 
 <br/>
 <br/>
-<br/>
 
 ## Want More? Upgrade to Pro
 
