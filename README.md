@@ -1,4 +1,4 @@
-<p align="center"><img src="/docs/feature.png?sanitize=true&raw=true" width="1200"></p>
+<p align="center"><a href="https://webserial.pro?ref=ghfeature" target="_blank"><img src="/docs/feature.png?sanitize=true&raw=true" width="1200"></a></p>
 <br/>
 <p>
 <img src="https://img.shields.io/github/last-commit/ayushsharma82/WebSerial.svg?style=for-the-badge" />
@@ -8,130 +8,70 @@
 <img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
 </p>
 <br/>
-<hr/>
 
-<br/>
-
-<p><b>WebSerial</b> is a Serial Monitor for <b>ESP8266</b> & <b>ESP32</b> Microcontrollers that can be accessed remotely via a web browser. Webpage is stored in program memory of the microcontroller.</p>
-
-<br/>
-
-<h2>Preview</h2>
-<p align="center"><img src="/docs/preview.png" width="900"></p>
-
-<br/>
-<br/>
-<br/>
-
-<h2 align="center">Upgrade to Pro</h2>
-
-<p align="center">
-Checkout the Pro version of the WebSerial library which comes with enhanced & snappy UI, along with 'clear' & 'lock scroll' buttons on the monitor interface. Best of all, it's only 10KB in size compared to 50KB of regular WebSerial. <br><br> <b>Available Here: </b>
-<ol align="center">
-  <li><a href="https://webserial.pro" target="_blank">Official Website</a></li>
-</ol>
-</p>
-
-<p align="center">
-  <a href="https://webserial.pro" target="_blank">
-  <img src="/docs/promo.png" alt="WebSerialPro">
-  </a>
-</p>
+<p><b>WebSerial</b> is a remote terminal to log, monitor or debug your firmware without being connected by wire. It lives on your wireless microcontroller itself and can be accessed anytime through your browser.
 
 <br/>
 <br/>
 
-<h2>Features</h2>
-<p>
-  <ul style="list-style-position: inside;">
-      <li>Works on Websockets</li>
-      <li>Realtime logging</li>
-      <li>Any number of Serial Monitors can be opened on the browser</li>
-      <li>Uses Async Webserver for better performance</li>
-  </ul>
-</p>
-
-<br/>
-<br/>
-
-<h2>Dependencies</h2>
-<p>
-  <h5>For ESP8266:</h5>
-  <ul>
-      <li>ESP8266 Arduino Core - <b>(latest)</b></li>
-      <li>ESPAsyncTCP - <b>v1.2.2</b></li>
-  	  <li>ESPAsyncWebServer - <b>v1.2.3</b></li>
-  </ul>
-  
-  <h5>For ESP32:</h5>
-  <ul>
-      <li>ESP32 Arduino Core - <b>(latest)</b></li>
-      <li>AsyncTCP - <b>v1.1.1</b></li>
-  	  <li>ESPAsyncWebServer - <b>v1.2.3</b></li>
-  </ul>
-</p>
+## Features
+- 🔥 A powerful tool that lives in your microcontroller itself
+- 🛜 Access it anytime & from anywhere within same network (LAN)
+- 🎷 No need to learn HTML/CSS/JS
+- 🛫 Ready to use within 4-5 lines of code
 
 <br/>
 
-<h2>How to Install</h2>
+## Supported MCUs
+WebSerial works on the following microcontrollers/boards:
+- ESP8266
+- ESP32
+- *( more coming soon )*
 
-###### Directly Through Arduino IDE 
-Go to Sketch > Include Library > Library Manager > Search for "WebSerial" > Install
+<br/>
 
-###### Manual Install
+<h2>OSS Preview</h2>
+<p>Once you have integrated WebSerial library in your code, a terminal like below will be accessible over your WiFi microcontroller's IP: 
+<p align="center"><img src="/docs/preview.png" width="1200"></p>
 
-For Windows: Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip) and extract the .zip in Documents>Arduino>Libraries>{Place "WebSerial" folder Here}
+<br/>
+<br/>
+<br/>
 
-For Linux: Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip) and extract the .zip in Sketchbook>Libraries>{Place "WebSerial" folder Here}
+## Want More? Upgrade to Pro
 
-Include other library
-https://github.com/me-no-dev/ESPAsyncWebServer
-https://github.com/me-no-dev/AsyncTCP
+WebSerial Pro comes with the following extended functionality:
 
-###### Manually through IDE
+- Export logs into TXT, JSON or CSV file
+- Lock scroll feature
+- Timestamps
+- Enable/Disable Command Input Bar
+- Customizable font & terminal font size from UI itself
+- Branding (Add your own Logo)
+- Commercial License
 
-Download the [Repository](https://github.com/ayushsharma82/WebSerial/archive/master.zip), Go to Sketch>Include Library>Add .zip Library> Select the Downloaded .zip File.
+<br> <b>Available here: </b>
+
+- [Official Website ( webserial.pro )](https://webserial.pro?ref=ghrepo)
+
+<br/>
+
+<a href="https://webserial.pro?ref=ghpropreview" target="_blank">
+  <img src="/docs/pro-preview.jpg" alt="WebSerial Pro" width="1200">
+</a>
 
 <br>
-
-<h2>Documentation</h2>
-<p>WebSerial is very similar to the default Serial Monitor Library of Arduino.</p>
-
-Please see `Demo` examples for better understanding on how to setup WebSerial for your Project: [Click Here](https://github.com/ayushsharma82/WebSerial/blob/master/examples/ESP8266_Demo/ESP8266_Demo.ino)
-
-
-WebSerial has 2 main functions:
-- `print`
-- `println`
-
-
-`print` - simply prints the data sent over WebSerial without any newline character.
-
-
-`println` - prints the data sent over WebSerial with a newline character.
-
-
-Both functions support the following datatypes: `String`, `const char`, `char`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, `double`, `float`.
-
-
-<b>To Access Webserial:</b> Go to `<IP Address>/webserial` in your browser ( where `<IP Address>` is the IP of your ESP).
-
 <br>
 
 <h2>Contributions</h2>
-<p>Every Contribution to this repository is highly appriciated! Don't fear to create pull requests which enhance or fix the library as ultimatly you are going to help everybody.</p>
-<p>
-If you want to donate to the author then <b>you can buy me a coffee</b>, It really helps me keep these libraries updated:
-<br/><br/>
-<a href="https://www.buymeacoffee.com/6QGVpSj" target="_blank"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-%245-orange?style=for-the-badge&logo=buy-me-a-coffee" /></a>
-</p>
-<br/>
-<br/>
+<p>Every contribution to this repository is highly appreciated! If you spot any bug or problem, open a issue or pull request so that it can be rectified for everyone.</p>
 
+**For feature requests:** Please open a issue and I'll add the feature in a future release once I get some time in my hands.
+
+<br/>
 
 <h2>License</h2>
-WebSerial is licensed under General Public License v3 ( GPLv3 ).
-<br/>
-<br/>
-<img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
-</div>
+
+WebSerial open-source edition is licensed under Affero General Public License v3.0 ( AGPL-3.0 ).
+
+If you are intending to use WebSerial in a commercial project, please consider purchasing [WebSerial Pro](https://webserial.pro?ref=ghlicense) which comes with a less restrictive SOFTT Commercial License 1.0 ( SCL-1.0 ).
