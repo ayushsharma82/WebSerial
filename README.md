@@ -9,6 +9,11 @@
 </p>
 <br/>
 
+> [!Important]
+> This branch contains the release candidate version for V2. Please use with caution before final release.
+
+<br/>
+
 <p><b>WebSerial</b> is a remote terminal to log, monitor or debug your firmware without being connected by wire. It lives on your wireless microcontroller itself and can be accessed anytime through your browser.
 
 <br/>
@@ -73,4 +78,4 @@ WebSerial Pro comes with the following extended functionality:
 
 WebSerial open-source edition is licensed under Affero General Public License v3.0 ( AGPL-3.0 ).
 
-If you are intending to use WebSerial in a commercial project, please consider purchasing [WebSerial Pro](https://webserial.pro?ref=ghlicense) which comes with a less restrictive SOFTT Commercial License 1.0 ( SCL-1.0 ).
+If you are intending to use WebSerial in a commercial project, please consider purchasing [WebSerial Pro](https://webserial.pro?ref=ghlicense) which comes with a less restrictive SOFTT Commercial License 1.1 ( SCL-1.1 ).
