@@ -35,6 +35,11 @@ WebSerial works on the following microcontrollers/boards:
 
 <br/>
 
+<h2>Documentation</h2>
+<p>Learn more about Installation & Usage: <a href="https://docs.webserial.pro?ref=gitreadme">Click Here</a></p>
+
+<br>
+
 <h2>OSS Preview</h2>
 <p>Once you have integrated WebSerial library in your code, a terminal like below will be accessible over your WiFi microcontroller's IP: 
 <p align="center"><img src="/docs/preview.png" width="1200"></p>
