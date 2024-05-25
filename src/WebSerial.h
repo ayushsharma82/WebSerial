@@ -70,12 +70,12 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
   #error "WSL_GLOBAL_FLUSH_TIME_MS must be greater than 50ms"
 #endif
 
-typedef enum WSLPacketType {
+typedef enum {
   WSL_WRITE_ROW = 0x01,
   WSL_MESSAGE = 0x02,
   WSL_PING = 0x03,
   WSL_PONG = 0x04,
-};
+} WSLPacketType;
 
 typedef std::function<void(uint8_t *data, size_t len)> WSLMessageHandler;
 
@@ -116,7 +116,7 @@ class WebSerialClass : public Print {
     bool _has_enough_space(size_t size);
     size_t _start_row();
     size_t _write_row(uint8_t *data, size_t len);
-    size_t _write_row_packet(uint8_t *buffer, uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size);
+    size_t _write_row_packet(uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size);
     size_t _end_row();
     void _flush_print_buffer();
     void _flush_global_buffer();

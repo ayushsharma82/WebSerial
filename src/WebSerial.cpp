@@ -19,7 +19,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
   }
 
   // Webpage Handler
-  _server->on(url, HTTP_GET, [](AsyncWebServerRequest *request){
+  _server->on(url, HTTP_GET, [&](AsyncWebServerRequest *request){
     if(_authenticate == true){
       if(!request->authenticate(_username, _password))
         return request->requestAuthentication();
@@ -110,7 +110,7 @@ bool WebSerialClass::_has_enough_space(size_t size) {
   return (_buffer_offset + WSL_CALC_LOG_PACKET_SIZE(size) > WSL_BUFFER_SIZE);
 }
 
-size_t WebSerialClass::_write_row_packet(uint8_t *buffer, uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
+size_t WebSerialClass::_write_row_packet(uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
   size_t header_size = 0;
 
   // Write Magic Bytes
@@ -166,7 +166,7 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
     Serial.printf("Packet Size: %d\n", packet_size);
     Serial.printf("Remaining Size: %d\n", remaining_size);
     // Write Packet to Buffer
-    _buffer_offset += _write_row_packet(_buffer + _buffer_offset, 0, 0, current_ptr, packet_size);
+    _buffer_offset += _write_row_packet(0, 0, current_ptr, packet_size);
 
     // Unlock Mutex
     _buffer_mutex = false;

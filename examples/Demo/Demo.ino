@@ -1,10 +1,21 @@
 /*
+  --------------
   WebSerial Demo
-  ------
-  This example code works for both ESP8266 & ESP32 Microcontrollers
-  WebSerial is accessible at your ESP's <IPAddress>/webserial URL.
+  --------------
+  
+  Skill Level: Beginner
 
-  Author: Ayush Sharma
+  This example provides with a bare minimal app with WebSerial functionality.
+
+  Github: https://github.com/ayushsharma82/WebSerial
+  Wiki: https://docs.webserial.pro
+
+  Works with following hardware:
+  - ESP8266
+  - ESP32
+
+  WebSerial terminal will be accessible at your microcontroller's <IPAddress>/webserial URL.
+
   Checkout WebSerial Pro: https://webserial.pro
 */
 
@@ -49,7 +60,7 @@ void setup() {
 
   /* Attach Message Callback */
   WebSerial.onMessage([&](uint8_t *data, size_t len) {
-    Serial.printf("Received %lu bytes from WebSerial: ", len);
+    Serial.printf("Received %u bytes from WebSerial: ", len);
     Serial.write(data, len);
     Serial.println();
     WebSerial.println("Received Data...");
