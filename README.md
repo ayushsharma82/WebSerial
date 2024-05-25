@@ -1,4 +1,4 @@
-<p align="center"><a href="https://webserial.pro?ref=ghfeature" target="_blank"><img src="/docs/feature.png?sanitize=true&raw=true" width="1200"></a></p>
+<p align="center"><a href="https://webserial.pro?ref=ghfeature" target="_blank"><img src="/docs/feature.png" width="1200"></a></p>
 <br/>
 <p>
 <img src="https://img.shields.io/github/last-commit/ayushsharma82/WebSerial.svg?style=for-the-badge" />
@@ -66,7 +66,7 @@ WebSerial Pro comes with the following extended functionality:
 <br/>
 
 <a href="https://webserial.pro?ref=ghpropreview" target="_blank">
-  <img src="/docs/pro-preview.jpg" alt="WebSerial Pro" width="1200">
+  <img src="/docs/pro-preview.png" alt="WebSerial Pro" width="1200">
 </a>
 
 <br>
