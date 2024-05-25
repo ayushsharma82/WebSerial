@@ -6,7 +6,7 @@ sidebar_position: 5
 
 # Printing Logs
 
-The WebSerial library allows you to send logs and messages over a WebSocket connection, making it easy to debug and monitor your projects/devices via a web browser. This library inherits from the `Print` class of the Arduino core, so it uses methods similar to the `Serial` library.
+The WebSerial library provides you a really nice UI on the web browser itself using WebSockets protocol, making it easy to debug and monitor your projects/devices. Under the hood, this library inherits `Print` class of the Arduino core, so it uses methods similar to the `Serial` library.
 
 :::tip Important Tip
 **Don't** send large amounts of data in a single shot with WebSerial. (ie. more than 1KB)
