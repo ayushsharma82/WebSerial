@@ -46,10 +46,6 @@ WebSerial.printf(format, args...);
 
 Writes binary data to the WebSerial terminal.
 
-:::note Note
-WebSerial only accepts ASCII data with `write` opertaion, as it's sending data to a web browser there's no way to display other content types.
-:::
-
 ```cpp
 WebSerial.write(data);
 WebSerial.write(buffer, size);
