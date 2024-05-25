@@ -82,6 +82,7 @@ typedef std::function<void(uint8_t *data, size_t len)> WSLMessageHandler;
 class WebSerialClass : public Print {
   public:
     void begin(AsyncWebServer *server, const char* url = "/webserial");
+    void setAuthentication(const char* username, const char* passsword);
     void onMessage(WSLMessageHandler recv);
     size_t write(uint8_t);
     size_t write(uint8_t* buffer, size_t size);
@@ -105,6 +106,9 @@ class WebSerialClass : public Print {
     AsyncWebSocket *_ws;
     WSLMessageHandler _recv = nullptr;
     unsigned long _last_cleanup_time = 0;
+    bool _authenticate = false;
+    char _username[64];
+    char _password[64];
 
     // Print
     void _wait_for_global_mutex();
