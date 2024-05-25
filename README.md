@@ -1,76 +1,41 @@
-<p align="center"><a href="https://webserial.pro?ref=ghfeature" target="_blank"><img src="/docs/feature.png?sanitize=true&raw=true" width="1200"></a></p>
-<br/>
-<p>
-<img src="https://img.shields.io/github/last-commit/ayushsharma82/WebSerial.svg?style=for-the-badge" />
-&nbsp;
-<img src="https://img.shields.io/github/actions/workflow/status/ayushsharma82/WebSerial/ci.yml?branch=master&style=for-the-badge" />
-&nbsp;
-<img src="https://img.shields.io/github/license/ayushsharma82/WebSerial.svg?style=for-the-badge" />
-</p>
-<br/>
+# WebSerial Docs
 
-<p><b>WebSerial</b> is a remote terminal to log, monitor or debug your firmware without being connected by wire. It lives on your wireless microcontroller itself and can be accessed anytime through your browser.
+This documentation is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
-<br/>
-<br/>
+### Installation
 
-## Features
-- 🔥 A powerful tool that lives in your microcontroller itself
-- 🛜 Access it anytime & from anywhere within same network (LAN)
-- 🎷 No need to learn HTML/CSS/JS
-- 🛫 Ready to use within 4-5 lines of code
+```
+$ yarn
+```
 
-<br/>
+### Local Development
 
-## Supported MCUs
-WebSerial works on the following microcontrollers/boards:
-- ESP8266
-- ESP32
-- *( more coming soon )*
+```
+$ yarn start
+```
 
-<br/>
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-<h2>OSS Preview</h2>
-<p>Once you have integrated WebSerial library in your code, a terminal like below will be accessible over your WiFi microcontroller's IP: 
-<p align="center"><img src="/docs/preview.png" width="1200"></p>
+### Build
 
-<br/>
-<br/>
+```
+$ yarn build
+```
 
-## Want More? Upgrade to Pro
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-WebSerial Pro comes with the following extended functionality:
+### Deployment
 
-- Export logs into TXT, JSON or CSV file
-- Lock scroll feature
-- Timestamps
-- Enable/Disable Command Input Bar
-- Customizable font & terminal font size from UI itself
-- Branding (Add your own Logo)
-- Commercial License
+Using SSH:
 
-<br> <b>Available here: </b>
+```
+$ USE_SSH=true yarn deploy
+```
 
-- [Official Website ( webserial.pro )](https://webserial.pro?ref=ghrepo)
+Not using SSH:
 
-<br/>
+```
+$ GIT_USER=<Your GitHub username> yarn deploy
+```
 
-<a href="https://webserial.pro?ref=ghpropreview" target="_blank">
-  <img src="/docs/pro-preview.jpg" alt="WebSerial Pro" width="1200">
-</a>
-
-<br>
-<br>
-
-<h2>Contributions</h2>
-<p>Every contribution to this repository is highly appreciated! If you spot any bug or problem, open a issue or pull request so that it can be rectified for everyone.</p>
-
-**For feature requests:** Please open a issue and I'll add the feature in a future release once I get some time in my hands.
-
-<br/>
-
-<h2>License</h2>
-
-WebSerial open-source edition is licensed under Affero General Public License v3.0 ( AGPL-3.0 ).
-
-If you are intending to use WebSerial in a commercial project, please consider purchasing [WebSerial Pro](https://webserial.pro?ref=ghlicense) which comes with a less restrictive SOFTT Commercial License 1.0 ( SCL-1.0 ).
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
