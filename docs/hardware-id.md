@@ -9,9 +9,8 @@ This is an exclusive feature of WebSerial Pro. Check it out [here](https://webse
 :::
 
 <br/>
-<br/>
 
-<img src="/v3/img/hardware-id.png" alt="Hardware ID" width="400px" />
+<img src="/v2/img/hardware-id.png" alt="Hardware ID" width="400px" className="card-preview" />
 
 <br/>
 
@@ -22,19 +21,18 @@ The Hardware ID feature is shown on the WebSerial Pro portal for easy identifica
 ### Example Usage:
 
 ```cpp
-#include <WebSerial.h>
+...
+#include <WebSerialPro.h>
 
 void setup() {
-  // Initialize your hardware and other configurations here
+  ...
 
   // Set the Hardware ID
   WebSerial.setID("my_device_001");
-
-  // Additional setup code
 }
 
 void loop() {
-  // Your main loop code here
+  ...
 }
 ```
 

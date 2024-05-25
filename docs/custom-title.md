@@ -10,7 +10,7 @@ This is an exclusive feature of WebSerial Pro. Check it out [here](https://webse
 
 <br/>
 
-<img src="/v3/img/custom-title.png" alt="Custom Title" width="400px" />
+<img src="/v2/img/custom-title.png" alt="Custom Title" width="400px" className="card-preview" />
 
 <br/>
 

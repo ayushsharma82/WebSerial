@@ -4,8 +4,6 @@ sidebar_label: Authentication
 sidebar_position: 5
 ---
 
-## Introduction
-
 The authentication feature in WebSerial enhances the security of your Internet of Things (IoT) devices by requiring authentication before allowing anybody to access the logs of your device. This feature ensures that only authorized individuals or systems can access and modify your devices, adding an extra layer of protection to your IoT ecosystem.
 
 ## Setting Authentication

@@ -9,9 +9,8 @@ This is an exclusive feature of WebSerial Pro. Check it out [here](https://webse
 :::
 
 <br/>
-<br/>
 
-<img src="/v3/img/branding.png" alt="Branding" width="400px" />
+<img src="/v2/img/branding.png" alt="Branding" width="400px" className="card-preview" />
 
 <br/>
 <br/>
