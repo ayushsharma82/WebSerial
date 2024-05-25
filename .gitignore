@@ -1,3 +1,5 @@
+node_modules
+.docusaurus
 # Prerequisites
 .DS_Store
 *.d
