@@ -163,8 +163,6 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
     // Lock Mutex
     _buffer_mutex = true;
 
-    Serial.printf("Packet Size: %d\n", packet_size);
-    Serial.printf("Remaining Size: %d\n", remaining_size);
     // Write Packet to Buffer
     _buffer_offset += _write_row_packet(0, 0, current_ptr, packet_size);
 
