@@ -17,5 +17,13 @@
   ],
   "version": "2.0.0",
   "frameworks": "arduino",
-  "platforms": ["espressif8266", "espressif32"]
+  "platforms": ["espressif8266", "espressif32"],
+  "dependencies": [
+    {
+      "owner": "mathieucarbou",
+      "name": "ESP Async WebServer",
+      "version": "^2.10.0",
+      "platforms": ["espressif8266", "espressif32"]
+    }
+  ]
 }

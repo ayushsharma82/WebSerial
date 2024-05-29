@@ -55,4 +55,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-portal/
+/portal
+/.pio
+/logs
