@@ -10,34 +10,23 @@ This document explains the installation procedure for getting started with WebSe
 
 *WebSerial depends on the following libraries present in your libraries folder. Please stricly install the compatible versions of these dependencies only! Using any other version might break WebSerial or may cause WebSerial to work partially.*
 
+:::important Note on Dependencies
+As of v2, WebSerial has officially switched to using fork of ESPAsyncWebServer and its dependencies from [@mathieucarbou](https://github.com/mathieucarbou). This fork of ESPAsyncWebServer is being maintained regularly and contains many bug fixes along with arduino-esp32 core v3 support.
+
+It's suggested to migrate all your projects to using this fork as the original me-no-dev/ESPAsyncWebServer repo is not being maintained  *since years*.
+:::
+
 #### For ESP8266
 
-- [ESP8266 Arduino Core](https://github.com/esp8266/Arduino) @ **latest**
-- [ESPAsyncTCP](https://github.com/me-no-dev/ESPAsyncTCP) @ **latest**
-- [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) @ **latest**
+- [ESP8266 Arduino Core](https://github.com/esp8266/Arduino) - **latest**
+- (mathieucarbou) [esphome-ESPAsyncTCP](https://github.com/mathieucarbou/esphome-ESPAsyncTCP#v2.0.0) - **v2.0.0**
+- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v2.10.1) - **v2.10.1**
 
 #### For ESP32
 
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32) @ **latest**
-- [AsyncTCP](https://github.com/me-no-dev/AsyncTCP) @ **latest**
-- [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) @ **latest**
-
-:::tip Alternative Dependencies
-
-Although WebSerial supports the **official** dependencies, If you are using WebSerial to send a lot of packets, It's advised to switch to the following **fork of dependencies** for a crash-free experience. These forks are drop-in replacements which contain bugfixes and offer much better performance.
-
-#### For ESP8266
-
-- [esphome/ESPAsyncTCP](https://github.com/esphome/ESPAsyncTCP) @ **latest**
-- [mathieucarbou/ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer) @ **2.5.1**
-
-#### For ESP32
-
-- [esphome/AsyncTCP](https://github.com/esphome/AsyncTCP) @ **latest**
-- [mathieucarbou/ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer) @ **2.5.1**
-
-*Please make sure to uninstall the 'original' dependencies from your libraries folder if you have installed any of these forks. If previous dependencies remain installed, the compiler will throw an error.*
-:::
+- (mathieucarbou) [AsyncTCP](https://github.com/mathieucarbou/AsyncTCP#v3.1.4) @ **v3.1.4**
+- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v2.10.1) - **v2.10.1**
 
 ### Installing WebSerial
 
