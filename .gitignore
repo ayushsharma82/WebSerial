@@ -1,4 +1,7 @@
+node_modules
+.docusaurus
 # Prerequisites
+.DS_Store
 *.d
 .vscode/
 
@@ -51,3 +54,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+/portal
+/.pio
+/logs
