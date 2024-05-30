@@ -66,9 +66,6 @@ jobs:
       - name: Install ESPAsyncWebServer
         run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/mathieucarbou/ESPAsyncWebServer#v2.10.1
 
-      - name: Install ArduinoJson
-        run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/bblanchon/ArduinoJson#v7.0.4
-
       - name: Build Demo
         run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo/Demo.ino"
 
