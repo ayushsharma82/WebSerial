@@ -50,7 +50,7 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
 #define WSL_MAX_LOG_PACKET_MESSAGE_SIZE       512
 #define WSL_CALC_LOG_PACKET_SIZE(len)         (WSL_LOG_PACKET_HEADER_SIZE + len)
 
-#define WSL_PRINT_FLUSH_TIME_US               50
+#define WSL_PRINT_FLUSH_TIME_US               100
 #define WSL_GLOBAL_FLUSH_TIME_MS              100
 #define WSL_CLEANUP_TIME_MS                   5000
 
