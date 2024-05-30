@@ -9,11 +9,6 @@
 </p>
 <br/>
 
-> [!Important]
-> This branch contains the release candidate version for V2. Please use with caution before final release.
-
-<br/>
-
 <p><b>WebSerial</b> is a remote terminal to log, monitor or debug your firmware without being connected by wire. It lives on your wireless microcontroller itself and can be accessed anytime through your browser.
 
 <br/>
