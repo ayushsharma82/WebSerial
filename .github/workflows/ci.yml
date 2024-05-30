@@ -73,7 +73,7 @@ jobs:
         run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo/Demo.ino"
 
       - name: Build Demo_AP
-        run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo/Demo_AP.ino"
+        run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo_AP/Demo_AP.ino"
 
   platformio:
     name: pio ${{ matrix.name }}
