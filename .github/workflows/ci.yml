@@ -72,6 +72,12 @@ jobs:
       - name: Build Demo_AP
         run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo_AP/Demo_AP.ino"
 
+      - name: Build Logging
+        run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Logging/Logging.ino"
+
+      - name: Build HighPerf
+        run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/HighPerf/HighPerf.ino"
+
   platformio:
     name: pio ${{ matrix.name }}
     runs-on: ubuntu-latest
@@ -124,3 +130,10 @@ jobs:
 
       - run: platformio ci "examples/Demo/Demo.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
       - run: platformio ci "examples/Demo_AP/Demo_AP.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+      - run: platformio ci "examples/Logging/Logging.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+      - run: platformio ci "examples/HighPerf/HighPerf.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" platformio ci "examples/Demo/Demo.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" platformio ci "examples/Demo_AP/Demo_AP.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" platformio ci "examples/Logging/Logging.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" platformio ci "examples/HighPerf/HighPerf.ino" -l '.' -b ${{ matrix.board }} ${{ matrix.opts }}
