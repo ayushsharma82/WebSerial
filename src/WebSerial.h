@@ -35,24 +35,26 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
     #include "ESPAsyncWebServer.h"
 #endif
 
-#include "wslp.h"
-
-// DO NOT change magic bytes
-#define WSL_MAGIC_BYTE_1              0xAB
-#define WSL_MAGIC_BYTE_2              0xCD
-
 // Global buffer ( buffers all packets )
+#ifndef WSL_BUFFER_SIZE
 #define WSL_BUFFER_SIZE                       2048
+#endif
+#ifndef WSL_PRINT_BUFFER_SIZE
 #define WSL_PRINT_BUFFER_SIZE                 1024
+#endif
+#ifndef WSL_MAX_ROW_PACKET_PAYLOAD_SIZE
 #define WSL_MAX_ROW_PACKET_PAYLOAD_SIZE       512
+#endif
 
-#define WSL_LOG_PACKET_HEADER_SIZE            14
-#define WSL_MAX_LOG_PACKET_MESSAGE_SIZE       512
-#define WSL_CALC_LOG_PACKET_SIZE(len)         (WSL_LOG_PACKET_HEADER_SIZE + len)
-
+#ifndef WSL_PRINT_FLUSH_TIME_US
 #define WSL_PRINT_FLUSH_TIME_US               100
+#endif
+#ifndef WSL_GLOBAL_FLUSH_TIME_MS
 #define WSL_GLOBAL_FLUSH_TIME_MS              100
+#endif
+#ifndef WSL_CLEANUP_TIME_MS
 #define WSL_CLEANUP_TIME_MS                   5000
+#endif
 
 #if WSL_BUFFER_SIZE < 512
   #error "WSL_BUFFER_SIZE must be >= 512 bytes"
@@ -70,19 +72,13 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
   #error "WSL_GLOBAL_FLUSH_TIME_MS must be greater than 50ms"
 #endif
 
-typedef enum {
-  WSL_WRITE_ROW = 0x01,
-  WSL_MESSAGE = 0x02,
-  WSL_PING = 0x03,
-  WSL_PONG = 0x04,
-} WSLPacketType;
-
 typedef std::function<void(uint8_t *data, size_t len)> WSLMessageHandler;
 
 class WebSerialClass : public Print {
   public:
     void begin(AsyncWebServer *server, const char* url = "/webserial");
-    void setAuthentication(const char* username, const char* passsword);
+    inline void setAuthentication(const char* username, const char* password) { setAuthentication(String(username), String(password)); }
+    void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
     size_t write(uint8_t);
     size_t write(uint8_t* buffer, size_t size);
@@ -107,8 +103,8 @@ class WebSerialClass : public Print {
     WSLMessageHandler _recv = nullptr;
     unsigned long _last_cleanup_time = 0;
     bool _authenticate = false;
-    char _username[64];
-    char _password[64];
+    String _username;
+    String _password;
 
     // Print
     void _wait_for_global_mutex();
