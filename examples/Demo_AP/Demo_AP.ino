@@ -42,10 +42,10 @@ void setup() {
   WiFi.softAP(ssid, password);
   // Once connected, print IP
   Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.softAPIP());
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hi! This is WebSerial demo. You can access webserial interface at http://" + WiFi.localIP().toString() + "/webserial");
+    request->send(200, "text/plain", "Hi! This is WebSerial demo. You can access webserial interface at http://" + WiFi.softAPIP().toString() + "/webserial");
   });
 
   // WebSerial is accessible at "<IP Address>/webserial" in browser
@@ -72,7 +72,7 @@ void loop() {
   // Print every 2 seconds (non-blocking)
   if ((unsigned long)(millis() - last_print_time) > 2000) {
     WebSerial.print(F("IP address: "));
-    WebSerial.println(WiFi.localIP());
+    WebSerial.println(WiFi.softAPIP());
     WebSerial.printf("Uptime: %lums\n", millis());
     WebSerial.printf("Free heap: %u\n", ESP.getFreeHeap());
     last_print_time = millis();

@@ -1,12 +1,26 @@
 #include "WebSerial.h"
 
-void WebSerialClass::setAuthentication(const char* username, const char* password){
-  _authenticate = true;
-  strncpy(_username, username, sizeof(_username));
-  strncpy(_password, password, sizeof(_password));
+#include "wslp.h"
 
+// DO NOT change magic bytes
+#define WSL_MAGIC_BYTE_1              0xAB
+#define WSL_MAGIC_BYTE_2              0xCD
+#define WSL_LOG_PACKET_HEADER_SIZE    14
+#define WSL_CALC_LOG_PACKET_SIZE(len) (WSL_LOG_PACKET_HEADER_SIZE + len)
+
+typedef enum {
+  WSL_WRITE_ROW = 0x01,
+  WSL_MESSAGE = 0x02,
+  WSL_PING = 0x03,
+  WSL_PONG = 0x04,
+} WSLPacketType;
+
+void WebSerialClass::setAuthentication(const String& username, const String& password){
+  _username = username;
+  _password = password;
+  _authenticate = !_username.isEmpty() && !_password.isEmpty();
   if (_ws != nullptr) {
-    _ws->setAuthentication(_username, _password);
+    _ws->setAuthentication(_username.c_str(), _password.c_str());
   }
 }
 
@@ -20,8 +34,8 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
 
   // Webpage Handler
   _server->on(url, HTTP_GET, [&](AsyncWebServerRequest *request){
-    if(_authenticate == true){
-      if(!request->authenticate(_username, _password))
+    if(_authenticate){
+      if(!request->authenticate(_username.c_str(), _password.c_str()))
         return request->requestAuthentication();
     }
     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", WEBSERIAL_HTML, sizeof(WEBSERIAL_HTML));
@@ -30,7 +44,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
   });
 
   // WS Handler
-  _ws->onEvent([&](AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) -> void {
+  _ws->onEvent([&](__unused AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, __unused void * arg, uint8_t *data, __unused size_t len) -> void {
     // if(type == WS_EVT_CONNECT){
     // } else if(type == WS_EVT_DISCONNECT){
     // } else if(type == WS_EVT_DATA){
@@ -42,7 +56,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
           size_t message_size = (data[4] << 8) | data[3];
           // Issue callback
           if(_recv != nullptr){
-            _recv(data + 4, message_size);
+            _recv(data + 5, message_size);
           }
         } else if (data[2] == WSLPacketType::WSL_PING) {
           // Send pong
@@ -110,7 +124,7 @@ bool WebSerialClass::_has_enough_space(size_t size) {
   return (_buffer_offset + WSL_CALC_LOG_PACKET_SIZE(size) > WSL_BUFFER_SIZE);
 }
 
-size_t WebSerialClass::_write_row_packet(uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
+size_t WebSerialClass::_write_row_packet(__unused uint64_t reserved1, __unused uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
   size_t header_size = 0;
 
   // Write Magic Bytes
