@@ -35,6 +35,10 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
     #include "ESPAsyncWebServer.h"
 #endif
 
+#ifndef WSL_MAX_WS_CLIENTS
+#define WSL_MAX_WS_CLIENTS DEFAULT_MAX_WS_CLIENTS
+#endif
+
 // Global buffer ( buffers all packets )
 #ifndef WSL_BUFFER_SIZE
 #define WSL_BUFFER_SIZE                       2048

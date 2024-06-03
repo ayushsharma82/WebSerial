@@ -227,7 +227,7 @@ void WebSerialClass::_flush_global_buffer() {
 void WebSerialClass::loop() {
   if ((unsigned long)(millis() - _last_cleanup_time) > WSL_CLEANUP_TIME_MS) {
     _last_cleanup_time = millis();
-    _ws->cleanupClients();
+    _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
   }
 
   // If FLUSH_TIME ms has been passed since last packet time, flush logs
