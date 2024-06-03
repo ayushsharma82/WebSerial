@@ -29,7 +29,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
   _ws = new AsyncWebSocket("/wserial");
 
   if (_authenticate) {
-    _ws->setAuthentication(_username, _password);
+    _ws->setAuthentication(_username.c_str(), _password.c_str());
   }
 
   // Webpage Handler
