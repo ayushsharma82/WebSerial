@@ -80,8 +80,8 @@ class WebSerialClass : public Print {
     inline void setAuthentication(const char* username, const char* password) { setAuthentication(String(username), String(password)); }
     void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
-    size_t write(uint8_t);
-    size_t write(uint8_t* buffer, size_t size);
+    size_t write(uint8_t) override;
+    size_t write(const uint8_t* buffer, size_t size) override;
     void loop();
 
   private:

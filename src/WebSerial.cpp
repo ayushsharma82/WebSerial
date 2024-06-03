@@ -83,7 +83,7 @@ size_t WebSerialClass::write(uint8_t m) {
 }
 
 // Println / Printf / Write func
-size_t WebSerialClass::write(uint8_t* buffer, size_t size) {
+size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
   loop();
   _wait_for_print_mutex();
   _print_buffer_mutex = true;
