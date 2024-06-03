@@ -77,6 +77,7 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
 #endif
 
 typedef std::function<void(uint8_t *data, size_t len)> WSLMessageHandler;
+typedef std::function<void(const String& msg)> WSLStringMessageHandler;
 
 class WebSerialClass : public Print {
   public:
@@ -84,6 +85,7 @@ class WebSerialClass : public Print {
     inline void setAuthentication(const char* username, const char* password) { setAuthentication(String(username), String(password)); }
     void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
+    void onMessage(WSLStringMessageHandler recv);
     size_t write(uint8_t) override;
     size_t write(const uint8_t* buffer, size_t size) override;
     void loop();

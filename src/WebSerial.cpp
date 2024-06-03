@@ -76,6 +76,21 @@ void WebSerialClass::onMessage(WSLMessageHandler recv) {
   _recv = recv;
 }
 
+void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
+  _recv = [&](uint8_t *data, size_t len) {
+    if(data && len) {
+#ifdef ESP8266
+      String msg;
+      msg.reserve(len);
+      msg.concat((char*)data, len);
+      callback(msg);
+#else
+      callback(String((char*)data, len));
+#endif
+    }
+  };
+}
+
 // Print func
 size_t WebSerialClass::write(uint8_t m) {
   write(&m, 1);
