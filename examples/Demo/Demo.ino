@@ -81,7 +81,7 @@ void loop() {
     WebSerial.print(F("IP address: "));
     WebSerial.println(WiFi.localIP());
     WebSerial.printf("Uptime: %lums\n", millis());
-    WebSerial.printf("Free heap: %u\n", ESP.getFreeHeap());
+    WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
     last_print_time = millis();
   }
 
