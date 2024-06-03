@@ -118,10 +118,11 @@ class WebSerialClass : public Print {
     bool _has_enough_space(size_t size);
     size_t _start_row();
     size_t _write_row(uint8_t *data, size_t len);
-    size_t _write_row_packet(uint64_t reserved1, uint8_t reserved2, const uint8_t *payload, const size_t payload_size);
     size_t _end_row();
     void _flush_print_buffer();
     void _flush_global_buffer();
+
+    static size_t _write_row_packet(uint8_t* dest, const uint8_t *payload, size_t payload_size);
 };
 
 extern WebSerialClass WebSerial;

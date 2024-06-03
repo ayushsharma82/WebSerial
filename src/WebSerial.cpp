@@ -18,6 +18,24 @@ typedef enum {
 static const uint8_t WSL_PONG_MSG[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
 static const size_t WSL_PONG_MSG_LEN = sizeof(WSL_PONG_MSG) / sizeof(WSL_PONG_MSG[0]);
 
+static const uint8_t WSL_HEAD[] = {
+  WSL_MAGIC_BYTE_1,             // Magic Bytes
+  WSL_MAGIC_BYTE_2,             // Magic Bytes
+  WSLPacketType::WSL_WRITE_ROW, // Packet Type (1 byte)
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00                          // Reserved
+};
+static const size_t WSL_HEAD_LEN = sizeof(WSL_HEAD) / sizeof(WSL_HEAD[0]);
+
+static const size_t WSL_MSG_SIZE_LEN = sizeof(uint16_t);
+
 void WebSerialClass::setAuthentication(const String& username, const String& password){
   _username = username;
   _password = password;
@@ -141,40 +159,6 @@ bool WebSerialClass::_has_enough_space(size_t size) {
   return (_buffer_offset + WSL_CALC_LOG_PACKET_SIZE(size) > WSL_BUFFER_SIZE);
 }
 
-size_t WebSerialClass::_write_row_packet(__unused uint64_t reserved1, __unused uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
-  size_t header_size = 0;
-
-  // Write Magic Bytes
-  _buffer[_buffer_offset + header_size++] = WSL_MAGIC_BYTE_1;
-  _buffer[_buffer_offset + header_size++] = WSL_MAGIC_BYTE_2;
-
-  // Packet Type (1 byte)
-  _buffer[_buffer_offset + header_size++] = WSLPacketType::WSL_WRITE_ROW;
-
-  // Reserved (8 bytes)
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-
-  // Reserved (1 byte)
-  _buffer[_buffer_offset + header_size++] = 0x00;
-
-  // Message Length (2 bytes)
-  memset(_buffer + _buffer_offset + header_size, (uint16_t)payload_size, sizeof((uint16_t)payload_size));
-  header_size += sizeof((uint16_t)payload_size);
-
-  // Set Message
-  memcpy(_buffer + _buffer_offset + header_size, payload, payload_size);
-
-  // Return total packet size
-  return header_size + payload_size;
-}
-
 size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
   // Split the logData into multiple packets
   size_t remaining_size = len;
@@ -195,7 +179,7 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
     _buffer_mutex = true;
 
     // Write Packet to Buffer
-    _buffer_offset += _write_row_packet(0, 0, current_ptr, packet_size);
+    _buffer_offset += _write_row_packet(_buffer, current_ptr, packet_size);
 
     // Unlock Mutex
     _buffer_mutex = false;
@@ -260,6 +244,20 @@ void WebSerialClass::loop() {
       _flush_global_buffer();
     }
   }
+}
+
+size_t WebSerialClass::_write_row_packet(uint8_t* dest, const uint8_t *payload, size_t payload_size) {
+    // sanity check to ensure the payload size is within the hard limit
+  if(payload_size > UINT16_MAX)
+    payload_size = UINT16_MAX;
+  // Write header
+  memmove(dest, WSL_HEAD, WSL_HEAD_LEN);
+  // Message Length (2 bytes)
+  memset(dest + WSL_HEAD_LEN, static_cast<uint16_t>(payload_size), WSL_MSG_SIZE_LEN);
+  // Set Message
+  memmove(dest + WSL_HEAD_LEN + WSL_MSG_SIZE_LEN, payload, payload_size);
+  // Return total packet size
+  return WSL_HEAD_LEN + WSL_MSG_SIZE_LEN + payload_size;
 }
 
 WebSerialClass WebSerial;
