@@ -15,6 +15,9 @@ typedef enum {
   WSL_PONG = 0x04,
 } WSLPacketType;
 
+static const uint8_t WSL_PONG_MSG[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
+static const size_t WSL_PONG_MSG_LEN = sizeof(WSL_PONG_MSG) / sizeof(WSL_PONG_MSG[0]);
+
 void WebSerialClass::setAuthentication(const String& username, const String& password){
   _username = username;
   _password = password;
@@ -60,8 +63,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
           }
         } else if (data[2] == WSLPacketType::WSL_PING) {
           // Send pong
-          uint8_t pong[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
-          client->binary(pong, sizeof(pong) / sizeof(pong[0]));
+          client->binary(WSL_PONG_MSG, WSL_PONG_MSG_LEN);
         }
       }
     }
