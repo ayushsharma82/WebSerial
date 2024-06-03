@@ -15,6 +15,8 @@
 <br/>
 
 ## Features
+
+- 📜 Log, monitor or debug your firmware/product with ease
 - 🔥 A powerful tool that lives in your microcontroller itself
 - 🛜 Access it anytime & from anywhere within same network (LAN)
 - 🎷 No need to learn HTML/CSS/JS
