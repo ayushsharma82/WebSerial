@@ -15,6 +15,27 @@ typedef enum {
   WSL_PONG = 0x04,
 } WSLPacketType;
 
+static const uint8_t WSL_PONG_MSG[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
+static const size_t WSL_PONG_MSG_LEN = sizeof(WSL_PONG_MSG) / sizeof(WSL_PONG_MSG[0]);
+
+static const uint8_t WSL_HEAD[] = {
+  WSL_MAGIC_BYTE_1,             // Magic Bytes
+  WSL_MAGIC_BYTE_2,             // Magic Bytes
+  WSLPacketType::WSL_WRITE_ROW, // Packet Type (1 byte)
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Reserved
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00,                         // Padding
+  0x00                          // Reserved
+};
+static const size_t WSL_HEAD_LEN = sizeof(WSL_HEAD) / sizeof(WSL_HEAD[0]);
+
+static const size_t WSL_MSG_SIZE_LEN = sizeof(uint16_t);
+
 void WebSerialClass::setAuthentication(const String& username, const String& password){
   _username = username;
   _password = password;
@@ -48,6 +69,10 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
     // if(type == WS_EVT_CONNECT){
     // } else if(type == WS_EVT_DISCONNECT){
     // } else if(type == WS_EVT_DATA){
+    if (type == WS_EVT_CONNECT) {
+      client->setCloseClientOnQueueFull(false);
+      return;
+    }
     if(type == WS_EVT_DATA){
       // Detect magic bytes
       if (data[0] == WSL_MAGIC_BYTE_1 && data[1] == WSL_MAGIC_BYTE_2) {
@@ -60,8 +85,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
           }
         } else if (data[2] == WSLPacketType::WSL_PING) {
           // Send pong
-          uint8_t pong[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
-          client->binary(pong, sizeof(pong) / sizeof(pong[0]));
+          client->binary(WSL_PONG_MSG, WSL_PONG_MSG_LEN);
         }
       }
     }
@@ -76,14 +100,74 @@ void WebSerialClass::onMessage(WSLMessageHandler recv) {
   _recv = recv;
 }
 
+void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
+  _recv = [&](uint8_t *data, size_t len) {
+    if(data && len) {
+#ifdef ESP8266
+      String msg;
+      msg.reserve(len);
+      msg.concat((char*)data, len);
+      callback(msg);
+#else
+      callback(String((char*)data, len));
+#endif
+    }
+  };
+}
+
 // Print func
 size_t WebSerialClass::write(uint8_t m) {
+  if (!_ws)
+    return 0;
+
+#ifdef WSL_HIGH_PERF
+  // We do not support non-buffered write on webserial for the HIGH_PERF version
+  // we fail with a stack trace allowing the user to change the code to use write(const uint8_t* buffer, size_t size) instead
+  if(!_initialBufferCapacity) {
+#ifdef ESP8266
+    ets_printf("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
+#else
+    log_e("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
+#endif
+    assert(false);
+    return 0;
+  }
+#endif // WSL_HIGH_PERF
+
   write(&m, 1);
   return(1);
 }
 
 // Println / Printf / Write func
-size_t WebSerialClass::write(uint8_t* buffer, size_t size) {
+size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
+  if (!_ws || size == 0)
+    return 0;
+
+#ifdef WSL_HIGH_PERF
+  // No buffer, send directly (i.e. use case for log streaming)
+  if (!_initialBufferCapacity) {
+    size = buffer[size - 1] == '\n' ? size - 1 : size;
+    _send(buffer, size);
+    return size;
+  }
+
+  // fill the buffer while sending data for each EOL
+  size_t start = 0, end = 0;
+  while (end < size) {
+    if (buffer[end] == '\n') {
+      if (end > start) {
+        _buffer.concat(reinterpret_cast<const char*>(buffer + start), end - start);
+      }
+      _send(reinterpret_cast<const uint8_t*>(_buffer.c_str()), _buffer.length());
+      start = end + 1;
+    }
+    end++;
+  }
+  if (end > start) {
+    _buffer.concat(reinterpret_cast<const char*>(buffer + start), end - start);
+  }
+  return size;
+#else
   loop();
   _wait_for_print_mutex();
   _print_buffer_mutex = true;
@@ -99,8 +183,33 @@ size_t WebSerialClass::write(uint8_t* buffer, size_t size) {
   _print_buffer_mutex = false;
   _last_print_buffer_write_time = micros();
   return(size);
+#endif
 }
 
+#ifdef WSL_HIGH_PERF
+void WebSerialClass::_send(const uint8_t* buffer, size_t size) {
+  if (_ws && size > 0) {
+    _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
+    if (_ws->count()) {
+      if (size > UINT16_MAX)
+        size = UINT16_MAX;
+      AsyncWebSocketMessageBuffer* wsbuffer = _ws->makeBuffer(WSL_HEAD_LEN + WSL_MSG_SIZE_LEN + size);
+      _write_row_packet(wsbuffer->get(), buffer, size);
+      _ws->binaryAll(wsbuffer);
+    }
+  }
+
+  // if buffer grew too much, free it, otherwise clear it
+  if (_initialBufferCapacity) {
+    if (_buffer.length() > _initialBufferCapacity) {
+      setBuffer(_initialBufferCapacity);
+    } else {
+      _buffer.clear();
+    }
+  }
+}
+
+#else // WSL_HIGH_PERF
 void WebSerialClass::_wait_for_global_mutex() {
   // Wait for mutex to be released
   if (_buffer_mutex) {
@@ -124,40 +233,6 @@ bool WebSerialClass::_has_enough_space(size_t size) {
   return (_buffer_offset + WSL_CALC_LOG_PACKET_SIZE(size) > WSL_BUFFER_SIZE);
 }
 
-size_t WebSerialClass::_write_row_packet(__unused uint64_t reserved1, __unused uint8_t reserved2, const uint8_t *payload, const size_t payload_size) {
-  size_t header_size = 0;
-
-  // Write Magic Bytes
-  _buffer[_buffer_offset + header_size++] = WSL_MAGIC_BYTE_1;
-  _buffer[_buffer_offset + header_size++] = WSL_MAGIC_BYTE_2;
-
-  // Packet Type (1 byte)
-  _buffer[_buffer_offset + header_size++] = WSLPacketType::WSL_WRITE_ROW;
-
-  // Reserved (8 bytes)
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-  _buffer[_buffer_offset + header_size++] = 0x00;
-
-  // Reserved (1 byte)
-  _buffer[_buffer_offset + header_size++] = 0x00;
-
-  // Message Length (2 bytes)
-  memset(_buffer + _buffer_offset + header_size, (uint16_t)payload_size, sizeof((uint16_t)payload_size));
-  header_size += sizeof((uint16_t)payload_size);
-
-  // Set Message
-  memcpy(_buffer + _buffer_offset + header_size, payload, payload_size);
-
-  // Return total packet size
-  return header_size + payload_size;
-}
-
 size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
   // Split the logData into multiple packets
   size_t remaining_size = len;
@@ -178,7 +253,7 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
     _buffer_mutex = true;
 
     // Write Packet to Buffer
-    _buffer_offset += _write_row_packet(0, 0, current_ptr, packet_size);
+    _buffer_offset += _write_row_packet(_buffer, current_ptr, packet_size);
 
     // Unlock Mutex
     _buffer_mutex = false;
@@ -223,11 +298,13 @@ void WebSerialClass::_flush_global_buffer() {
     _buffer_mutex = false;
   }
 }
+#endif // WSL_HIGH_PERF
 
 void WebSerialClass::loop() {
+#ifndef WSL_HIGH_PERF
   if ((unsigned long)(millis() - _last_cleanup_time) > WSL_CLEANUP_TIME_MS) {
     _last_cleanup_time = millis();
-    _ws->cleanupClients();
+    _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
   }
 
   // If FLUSH_TIME ms has been passed since last packet time, flush logs
@@ -243,6 +320,30 @@ void WebSerialClass::loop() {
       _flush_global_buffer();
     }
   }
+#endif // WSL_HIGH_PERF
+}
+
+void WebSerialClass::setBuffer(size_t initialCapacity) {
+#ifdef WSL_HIGH_PERF
+  assert(initialCapacity <= UINT16_MAX);
+  _initialBufferCapacity = initialCapacity;
+  _buffer = String();
+  _buffer.reserve(initialCapacity);
+#endif
+}
+
+size_t WebSerialClass::_write_row_packet(uint8_t* dest, const uint8_t *payload, size_t payload_size) {
+  // sanity check to ensure the payload size is within the hard limit
+  if(payload_size > UINT16_MAX)
+    payload_size = UINT16_MAX;
+  // Write header
+  memmove(dest, WSL_HEAD, WSL_HEAD_LEN);
+  // Message Length (2 bytes)
+  memset(dest + WSL_HEAD_LEN, static_cast<uint16_t>(payload_size), WSL_MSG_SIZE_LEN);
+  // Set Message
+  memmove(dest + WSL_HEAD_LEN + WSL_MSG_SIZE_LEN, payload, payload_size);
+  // Return total packet size
+  return WSL_HEAD_LEN + WSL_MSG_SIZE_LEN + payload_size;
 }
 
 WebSerialClass WebSerial;
