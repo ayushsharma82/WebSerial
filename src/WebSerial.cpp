@@ -169,8 +169,6 @@ size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
   return size;
 #else
   loop();
-  _wait_for_print_mutex();
-  _print_buffer_mutex = true;
 
   if (_print_buffer_offset + size > WSL_PRINT_BUFFER_SIZE) {
     // Flush print buffer if full
@@ -179,8 +177,6 @@ size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
     
   memcpy(_print_buffer + _print_buffer_offset, buffer, size);
   _print_buffer_offset += size;
-
-  _print_buffer_mutex = false;
   _last_print_buffer_write_time = micros();
   return(size);
 #endif
@@ -210,23 +206,6 @@ void WebSerialClass::_send(const uint8_t* buffer, size_t size) {
 }
 
 #else // WSL_HIGH_PERF
-void WebSerialClass::_wait_for_global_mutex() {
-  // Wait for mutex to be released
-  if (_buffer_mutex) {
-    while (_buffer_mutex) {
-      delayMicroseconds(10);
-    }
-  }
-}
-
-void WebSerialClass::_wait_for_print_mutex() {
-  // Wait for mutex to be released
-  if (_print_buffer_mutex) {
-    while (_print_buffer_mutex) {
-      delayMicroseconds(10);
-    }
-  }
-}
 
 bool WebSerialClass::_has_enough_space(size_t size) {
   // Check if total packet size exceeds buffer limit
@@ -246,17 +225,8 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
       _flush_global_buffer();
     }
 
-    // Wait for mutex to be released
-    _wait_for_global_mutex();
-
-    // Lock Mutex
-    _buffer_mutex = true;
-
     // Write Packet to Buffer
     _buffer_offset += _write_row_packet(_buffer, current_ptr, packet_size);
-
-    // Unlock Mutex
-    _buffer_mutex = false;
 
     // Set remaining size
     remaining_size -= packet_size;
@@ -267,10 +237,7 @@ size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
 }
 
 void WebSerialClass::_flush_print_buffer() {
-  _wait_for_print_mutex();
-  if (_print_buffer_mutex == false && _print_buffer_offset > 0) {
-    _print_buffer_mutex = true;
-
+  if (_print_buffer_offset > 0) {
     if (_buffer_offset + _print_buffer_offset > WSL_BUFFER_SIZE) {
       // Flush global buffer to websocket
       _flush_global_buffer();
@@ -279,23 +246,16 @@ void WebSerialClass::_flush_print_buffer() {
     // Flush print to global buffer and create a packet
     _write_row(_print_buffer, _print_buffer_offset);
     _print_buffer_offset = 0;
-    
-    _print_buffer_mutex = false;
     _last_print_buffer_flush_time = millis();
   }
 }
 
 void WebSerialClass::_flush_global_buffer() {
-  _wait_for_global_mutex();
-  if (_buffer_mutex == false && _buffer_offset > 0) {
-    _buffer_mutex = true;
-
+  if (_buffer_offset > 0) {
     // Flush buffer to websocket
     _ws->binaryAll(_buffer, _buffer_offset);
     // Reset buffer offset
     _buffer_offset = 0;
-    
-    _buffer_mutex = false;
   }
 }
 #endif // WSL_HIGH_PERF

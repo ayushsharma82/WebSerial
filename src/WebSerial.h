@@ -131,20 +131,16 @@ class WebSerialClass : public Print {
     unsigned long _last_cleanup_time = 0;
 
     // Global Buffer
-    bool _buffer_mutex = false;
     size_t _buffer_offset = 0;
     uint8_t _buffer[WSL_BUFFER_SIZE];
 
     // Print buffer
-    bool _print_buffer_mutex = false;
     size_t _print_buffer_offset = 0;
     uint8_t _print_buffer[WSL_PRINT_BUFFER_SIZE];
     unsigned long _last_print_buffer_write_time = 0;
     unsigned long _last_print_buffer_flush_time = 0;
 
     // Print
-    void _wait_for_global_mutex();
-    void _wait_for_print_mutex();
     bool _has_enough_space(size_t size);
     size_t _start_row();
     size_t _write_row(uint8_t *data, size_t len);
