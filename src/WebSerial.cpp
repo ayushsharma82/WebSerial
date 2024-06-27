@@ -59,7 +59,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
       if(!request->authenticate(_username.c_str(), _password.c_str()))
         return request->requestAuthentication();
     }
-    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", WEBSERIAL_HTML, sizeof(WEBSERIAL_HTML));
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", WEBSERIAL_HTML, sizeof(WEBSERIAL_HTML));
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);        
   });
