@@ -101,16 +101,13 @@ void WebSerialClass::onMessage(WSLMessageHandler recv) {
 }
 
 void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
+  _recvString = callback;
   _recv = [&](uint8_t *data, size_t len) {
     if(data && len) {
-#ifdef ESP8266
       String msg;
       msg.reserve(len);
       msg.concat((char*)data, len);
-      callback(msg);
-#else
-      callback(String((char*)data, len));
-#endif
+      _recvString(msg);
     }
   };
 }
