@@ -18,15 +18,15 @@ It's suggested to migrate all your projects to using this fork as the original m
 
 #### For ESP8266
 
-- [ESP8266 Arduino Core](https://github.com/esp8266/Arduino) - **latest**
+- [ESP8266 Arduino Core](https://github.com/esp8266/Arduino) - **v3.1.2**
 - (mathieucarbou) [esphome-ESPAsyncTCP](https://github.com/mathieucarbou/esphome-ESPAsyncTCP#v2.0.0) - **v2.0.0**
-- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v3.0.6) - **v3.0.6**
+- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v3.0.6) - **v3.1.1**
 
 #### For ESP32
 
-- [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32) @ **latest**
-- (mathieucarbou) [AsyncTCP](https://github.com/mathieucarbou/AsyncTCP#v3.1.4) @ **v3.1.4**
-- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v3.0.6) - **v3.0.6**
+- [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32) @ **v3.0.3**
+- (mathieucarbou) [AsyncTCP](https://github.com/mathieucarbou/AsyncTCP#v3.1.4) @ **v3.2.3**
+- (mathieucarbou) [ESPAsyncWebServer](https://github.com/mathieucarbou/ESPAsyncWebServer#v3.0.6) - **v3.1.1**
 
 ### Installing WebSerial
 
