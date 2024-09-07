@@ -50,7 +50,11 @@ void setup() {
 }
 
 void loop() {
+#ifdef ESP8266
+  if (millis() - last > 500) {
+#else
   if (millis() - last > 50) {
+#endif
     count++;
     long r = random(10, 250) + 15;
     String buffer;
