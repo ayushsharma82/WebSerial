@@ -2,6 +2,8 @@
 
 #include "wslp.h"
 
+#include <assert.h>
+
 // DO NOT change magic bytes
 #define WSL_MAGIC_BYTE_1              0xAB
 #define WSL_MAGIC_BYTE_2              0xCD
