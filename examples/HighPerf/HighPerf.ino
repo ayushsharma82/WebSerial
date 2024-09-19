@@ -56,6 +56,7 @@ void loop() {
   if (millis() - last > 50) {
 #endif
     count++;
+
     long r = random(10, 250) + 15;
     String buffer;
     buffer.reserve(r);
@@ -67,7 +68,16 @@ void loop() {
     for (int i = 0; i < r; i++) {
       buffer += dict[random(0, 62)];
     }
+
+#ifdef WSL_HIGH_PERF
+    // Using internal websocket buffer to improve memory consumption and avoid another internal copy when enqueueing the message
+    AsyncWebSocketMessageBuffer* wsBuffer = WebSerial.makeBuffer(buffer.length());
+    memmove(wsBuffer->get(), buffer.c_str(), buffer.length());
+    WebSerial.send(wsBuffer);
+#else
     WebSerial.print(buffer);
+#endif
+
     last = millis();
   }
 }
