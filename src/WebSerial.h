@@ -114,6 +114,29 @@ class WebSerialClass : public Print {
     // The buffer is not enabled by default.
     void setBuffer(size_t initialCapacity);
 
+#ifdef WSL_HIGH_PERF
+  #ifdef ASYNCWEBSERVER_FORK_mathieucarbou
+    // Expose the internal WebSocket makeBuffer to even improve memory consumption on client-side
+    // 1. make a AsyncWebSocketMessageBuffer
+    // 2. put the data inside
+    // 3. send the buffer
+    // This method avoids a buffer copy when creating the WebSocket message
+    AsyncWebSocketMessageBuffer* makeBuffer(size_t size = 0) {
+      if (!_ws)
+        return nullptr;
+      return _ws->makeBuffer(size);
+    }
+
+    void send(AsyncWebSocketMessageBuffer* buffer) {
+      if (!_ws || !buffer)
+        return;
+      _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
+      if (_ws->count())
+        _ws->textAll(buffer);
+    }
+  #endif
+#endif
+
   private:
     // Server
     AsyncWebServer *_server;
