@@ -73,7 +73,20 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
     // } else if(type == WS_EVT_DATA){
     if (type == WS_EVT_CONNECT) {
       client->setCloseClientOnQueueFull(false);
+      if(_onConnect != nullptr){
+        _onConnect();
+      }
+      if(_onClientConnect != nullptr){
+        _onClientConnect(client);
+      }
       return;
+    } else if(type == WS_EVT_DISCONNECT){
+      if(_onDisconnect != nullptr){
+        _onDisconnect();
+      }
+      if(_onClientDisconnect != nullptr){
+        _onClientDisconnect(client);
+      }
     }
     if(type == WS_EVT_DATA){
       // Detect magic bytes
@@ -112,6 +125,24 @@ void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
       _recvString(msg);
     }
   };
+}
+
+// onConnect Callback Handler
+void WebSerialClass::onConnect(WSLConnectHandler onConnect) {
+  _onConnect = onConnect;
+}
+
+void WebSerialClass::onConnect(WSLClientConnectHandler onConnect) {
+  _onClientConnect = onConnect;
+}
+
+// onDisconnect Callback Handler
+void WebSerialClass::onDisconnect(WSLConnectHandler onDisconnect) {
+  _onDisconnect = onDisconnect;
+}
+
+void WebSerialClass::onDisconnect(WSLClientConnectHandler onDisconnect) {
+  _onClientDisconnect = onDisconnect;
 }
 
 // Print func
