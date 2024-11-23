@@ -97,6 +97,7 @@ class WebSerialClass : public Print {
     void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
     void onMessage(WSLStringMessageHandler recv);
+    bool getConnectionCount();
     size_t write(uint8_t) override;
     size_t write(const uint8_t* buffer, size_t size) override;
     

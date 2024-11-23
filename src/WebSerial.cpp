@@ -114,6 +114,10 @@ void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
   };
 }
 
+bool WebSerialClass::getConnectionCount() {
+  return _ws->count();
+}
+
 // Print func
 size_t WebSerialClass::write(uint8_t m) {
   if (!_ws)
