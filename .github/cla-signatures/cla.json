@@ -1,3 +1,12 @@
 {
-   "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "JorritPosthuma",
+      "id": 412253,
+      "comment_id": 2495621851,
+      "created_at": "2024-11-23T18:59:09Z",
+      "repoId": 191947254,
+      "pullRequestNo": 108
+    }
+  ]
 }
