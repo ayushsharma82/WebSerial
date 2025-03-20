@@ -169,3 +169,7 @@ jobs:
       - run: PLATFORMIO_SRC_DIR=examples/Demo_AP PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
       - run: PLATFORMIO_SRC_DIR=examples/HighPerf PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
       - run: PLATFORMIO_SRC_DIR=examples/Logging PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Demo" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Demo_AP" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Logging" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/HighPerf" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
