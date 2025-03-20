@@ -205,7 +205,11 @@ void WebSerialClass::_send(const uint8_t* buffer, size_t size) {
     if (_buffer.length() > _initialBufferCapacity) {
       setBuffer(_initialBufferCapacity);
     } else {
-      _buffer.clear();
+      #if defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+        _buffer = "";
+      #else
+        _buffer.clear();
+      #endif
     }
   }
 }
