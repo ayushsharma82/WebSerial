@@ -127,10 +127,12 @@ size_t WebSerialClass::write(uint8_t m) {
   // We do not support non-buffered write on webserial for the HIGH_PERF version
   // we fail with a stack trace allowing the user to change the code to use write(const uint8_t* buffer, size_t size) instead
   if(!_initialBufferCapacity) {
-#ifdef ESP8266
+#ifdef defined(ESP8266)
     ets_printf("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
-#else
+#elif defined(ESP32)
     log_e("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
+#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+    Serial.println("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
 #endif
     assert(false);
     return 0;
