@@ -86,7 +86,13 @@ void loop() {
     WebSerial.print(F("IP address: "));
     WebSerial.println(WiFi.localIP());
     WebSerial.printf("Uptime: %lums\n", millis());
-    WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #if defined(ESP8266)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #elif defined(ESP32)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", rp2040.getFreeHeap());
+    #endif
     last_print_time = millis();
   }
 
