@@ -13,6 +13,8 @@
   Works with following hardware:
   - ESP8266
   - ESP32
+  - RP2040+W
+  - RP2350+W
 
   WebSerial terminal will be accessible at your microcontroller's <IPAddress>/webserial URL.
 
@@ -26,6 +28,9 @@
 #elif defined(ESP32)
   #include <WiFi.h>
   #include <AsyncTCP.h>
+#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+  #include <WiFi.h>
+  #include <RPAsyncTCP.h>
 #endif
 #include <ESPAsyncWebServer.h>
 #include <WebSerial.h>
@@ -74,7 +79,13 @@ void loop() {
     WebSerial.print(F("IP address: "));
     WebSerial.println(WiFi.softAPIP());
     WebSerial.printf("Uptime: %lums\n", millis());
-    WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #if defined(ESP8266)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #elif defined(ESP32)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", ESP.getFreeHeap());
+    #elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+      WebSerial.printf("Free heap: %" PRIu32 "\n", rp2040.getFreeHeap());
+    #endif
     last_print_time = millis();
   }
 

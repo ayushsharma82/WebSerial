@@ -24,15 +24,24 @@ License: AGPL-3.0 (https://www.gnu.org/licenses/agpl-3.0.html)
 #include <functional>
 
 #if defined(ESP8266)
-    #define HARDWARE "ESP8266"
-    #include "ESP8266WiFi.h"
-    #include "ESPAsyncTCP.h"
-    #include "ESPAsyncWebServer.h"
+  #define HARDWARE "ESP8266"
+  #include "ESP8266WiFi.h"
+  #include "ESPAsyncTCP.h"
+  #include "ESPAsyncWebServer.h"
 #elif defined(ESP32)
-    #define HARDWARE "ESP32"
-    #include "WiFi.h"
-    #include "AsyncTCP.h"
-    #include "ESPAsyncWebServer.h"
+  #define HARDWARE "ESP32"
+  #include "WiFi.h"
+  #include "AsyncTCP.h"
+  #include "ESPAsyncWebServer.h"
+#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+  #include "WiFi.h"
+  #include "RPAsyncTCP.h"
+  #include "ESPAsyncWebServer.h"
+  #if defined(TARGET_RP2040) || defined(PICO_RP2040)
+    #define HARDWARE "RP2040"
+  #elif defined(TARGET_RP2350) || defined(PICO_RP2350)
+    #define HARDWARE "RP2350"
+  #endif
 #endif
 
 #ifndef WSL_MAX_WS_CLIENTS
@@ -97,6 +106,7 @@ class WebSerialClass : public Print {
     void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
     void onMessage(WSLStringMessageHandler recv);
+    bool getConnectionCount();
     size_t write(uint8_t) override;
     size_t write(const uint8_t* buffer, size_t size) override;
     
@@ -115,7 +125,6 @@ class WebSerialClass : public Print {
     void setBuffer(size_t initialCapacity);
 
 #ifdef WSL_HIGH_PERF
-  #ifdef ASYNCWEBSERVER_FORK_mathieucarbou
     // Expose the internal WebSocket makeBuffer to even improve memory consumption on client-side
     // 1. make a AsyncWebSocketMessageBuffer
     // 2. put the data inside
@@ -134,7 +143,6 @@ class WebSerialClass : public Print {
       if (_ws->count())
         _ws->textAll(buffer);
     }
-  #endif
 #endif
 
   private:
