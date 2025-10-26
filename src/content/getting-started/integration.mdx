@@ -1,0 +1,176 @@
+---
+title: "Integration"
+description: "Integrate WebSerial into your existing projects with ease. This guide provides step-by-step instructions for adding WebSerial to your web server code, including setup and loop functions for seamless communication."
+---
+
+import { Steps } from 'nextra/components'
+
+# Integration Guide
+
+This guide will help you integrate WebSerial into your existing project.
+
+<Steps>
+### Include Dependencies
+
+Start by including the required libraries in your code. This ensures your code can use WebSerial functionality.
+
+```cpp
+#include <Arduino.h>
+#if defined(ESP8266)
+  /* ESP8266 Dependencies */
+  #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
+  #include <ESPAsyncWebServer.h>
+#elif defined(ESP32)
+  /* ESP32 Dependencies */
+  #include <WiFi.h>
+  #include <AsyncTCP.h>
+  #include <ESPAsyncWebServer.h>
+#elif defined(TARGET_RP2040) || defined(PICO_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2350)
+  /* RP2040 or RP2350 Dependencies */
+  #include <WiFi.h>
+  #include <RPAsyncTCP.h>
+  #include <ESPAsyncWebServer.h>
+#endif
+
+#include <ESPAsyncWebServer.h>
+#include <WebSerial.h>
+```
+
+<br/>
+
+### Create an instance of `AsyncWebServer`
+
+AsyncWebServer is required to serve the WebSerial interface and handle communication. Create an instance of `AsyncWebServer` on port 80 (or any other port you prefer).
+
+```cpp
+AsyncWebServer server(80);
+```
+
+<br/>
+
+### Initialize WebSerial in the `setup()` function.
+
+```cpp
+void setup() {
+  // ... Your existing setup code...
+
+  // Initialize WebSerial and attach it to AsyncWebServer instance
+  WebSerial.begin(&server);
+
+  // Attach callback to handle incoming messages from the WebSerial client
+  WebSerial.onMessage([](uint8_t *data, size_t len) {
+    Serial.printf("Received %lu bytes from WebSerial: ", len);
+    Serial.write(data, len);
+    Serial.println();
+    WebSerial.println("Received Data...");
+    String d = "";
+    for(size_t i = 0; i < len; i++){
+      d += char(data[i]);
+    }
+    WebSerial.println(d);
+  });
+
+  // Start AsyncWebServer
+  server.begin();
+}
+```
+
+<br/>
+
+### Handle WebSerial in the `loop()` function.
+
+```cpp
+void loop() {
+  // ... Your existing loop code...
+
+  WebSerial.loop();
+}
+```
+
+<br/>
+
+### Final Code
+That's it! This is how a ready to use example will look like. After uploading the code to your device, you can access WebSerial terminal on `http://<YOUR_DEVICE_IP>/webserial`.
+
+```cpp
+/*
+  WebSerial Demo
+  ------
+  This example code works for both ESP8266 & ESP32 Microcontrollers
+  WebSerial is accessible at your ESP's <IPAddress>/webserial URL.
+
+  Author: Ayush Sharma
+  Checkout WebSerial Pro: https://webserial.pro
+*/
+
+#include <Arduino.h>
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
+#elif defined(ESP32)
+  #include <WiFi.h>
+  #include <AsyncTCP.h>
+#endif
+#include <ESPAsyncWebServer.h>
+#include <WebSerial.h>
+
+AsyncWebServer server(80);
+
+const char* ssid = ""; // Your WiFi SSID
+const char* password = ""; // Your WiFi Password
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  
+  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+      Serial.printf("WiFi Failed!\n");
+      return;
+  }
+  
+  // Once connected, print IP
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hi! This is WebSerial demo. You can access webserial interface at http://" + WiFi.localIP().toString() + "/webserial");
+  });
+
+  // WebSerial is accessible at "<IP Address>/webserial" in browser
+  WebSerial.begin(&server);
+
+  /* Attach Message Callback */
+  WebSerial.onMessage([&](uint8_t *data, size_t len) {
+    Serial.printf("Received %lu bytes from WebSerial: ", len);
+    Serial.write(data, len);
+    Serial.println();
+    WebSerial.println("Received Data...");
+    String d = "";
+    for(size_t i=0; i < len; i++){
+      d += char(data[i]);
+    }
+    WebSerial.println(d);
+  });
+
+  // Start server
+  server.begin();
+}
+
+void loop() {
+  static unsigned long last_print_time = millis();
+
+  // Print every 2 seconds (non-blocking)
+  if ((unsigned long)(millis() - last_print_time) > 2000) {
+    WebSerial.print(F("IP address: "));
+    WebSerial.println(WiFi.localIP());
+    WebSerial.printf("Uptime: %lums\n", millis());
+    WebSerial.printf("Free heap: %u\n", ESP.getFreeHeap());
+    last_print_time = millis();
+  }
+
+  WebSerial.loop();
+}
+```
+</Steps>

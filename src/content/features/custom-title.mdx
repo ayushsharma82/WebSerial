@@ -1,0 +1,39 @@
+---
+title: "Custom Title"
+description: "Learn how to set a custom title for the WebSerial terminal using the setTitle() function in WebSerial Pro."
+---
+
+import ProCallout from '@/src/components/ProCallout';
+
+# Custom Title
+
+<br/>
+<ProCallout />
+
+<img src="/assets/images/v2/custom-title.png" alt="Custom Title" width="400px" />
+
+The `setTitle()` function is a method provided by the WebSerial Pro library. It is used to set the title of the WebSerial terminal. This title is displayed at the top of the WebSerial terminal, providing a user-friendly and customizable interface for managing firmware updates.
+
+## Implementation
+
+1. Include the WebSerial Pro library in your Arduino sketch.
+2. In the `setup()` function of your sketch, initialize the WebSerial Pro library using `WebSerial.begin()`.
+3. Use the `setTitle()` function to set a meaningful title for your WebSerial terminal. This title will be displayed at the top when users access it.
+
+## Reference
+
+```cpp
+#include <WebSerialPro.h>
+
+void setup() {
+  // Initialize the WebSerial Pro library
+  WebSerial.begin();
+
+  // Set the custom title for WebSerial terminal
+  WebSerial.setTitle("Custom Title Here");
+}
+
+void loop() {
+  // Your main program loop
+}
+```

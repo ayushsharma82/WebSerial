@@ -1,0 +1,42 @@
+---
+title: "Toggle Input"
+description: "Learn how to toggle input in WebSerial. This guide covers setup, usage, best practices, and use cases for the toggle input feature."
+---
+
+import { Callout } from 'nextra/components'
+import ProCallout from '@/src/components/ProCallout'
+
+# Toggle Input
+
+<br/>
+<ProCallout />
+
+The toggle input feature in WebSerial allows you to disable/enable user input from the WebSerial terminal. This can be useful in various scenarios, such as when you want to prevent user interaction during critical operations or when you need to permanently disable input for your intended application.
+
+<Callout>
+User input is enabled by default in WebSerial.
+</Callout>
+
+## Disable User Input
+
+<img src="/assets/images/v2/input-bar-disabled.png" alt="Export Logs Button" width="1200px" />
+
+```cpp
+WebSerial.disableInput();
+```
+
+## Enable User Input
+
+<img src="/assets/images/v2/input-bar.png" alt="Export Logs Button" width="1200px" />
+
+```cpp
+WebSerial.enableInput();
+```
+
+## Use Cases
+
+The Toggle Input feature is crucial in various scenarios:
+
+- **Critical Operations**: During firmware updates or critical system changes, you may want to disable user input to prevent unintended interactions.
+- **Custom Input Handling**: If you're implementing a custom input handling mechanism, you might need to disable the default input temporarily.
+- **User Experience**: Disabling input during specific operations can improve the user experience by preventing confusion or errors.

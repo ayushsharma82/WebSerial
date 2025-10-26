@@ -1,0 +1,59 @@
+---
+title: "Printing"
+description: "Learn how to use the printing methods in WebSerial to send data to the webserial terminal. This guide covers print, println, printf, and write methods for effective logging and debugging."
+---
+
+import { Callout } from 'nextra/components'
+
+# Printing
+
+
+The WebSerial library provides you a really nice UI on the web browser itself using WebSockets protocol, making it easy to debug and monitor your projects/devices. Under the hood, this library inherits `Print` class of the Arduino core, so it uses methods similar to the `Serial` library.
+
+<Callout emoji="💡">
+**Don't** send large amounts of data in a single shot with WebSerial. (ie. more than 1KB)
+
+WebSerial uses WebSockets as its underlying transport mechanism which is of low throughput (due to hardware limitations). Although there are built-in mechanisms in WebSerial library to ease this burden, it's advised to optimize your firmware for a crash-free experience.
+</Callout>
+
+
+## Methods
+
+Here are a example few methods which can be used to print logs/messages to WebSerial terminal:
+
+### `print()`
+
+Prints data to the WebSerial port as human-readable ASCII text.
+
+<Callout emoji="💡">
+**Tip**: If your application is dependent on `print` statements a lot, then please consider using `HighPerf` mode to avoid performance bottlenecks.
+</Callout>
+
+```cpp
+WebSerial.print(data);
+```
+
+### `println()`
+
+Prints data to the WebSerial terminal followed by a carriage return and newline.
+
+```cpp
+WebSerial.println(data);
+```
+
+### `printf()`
+
+Prints formatted data to the WebSerial terminal.
+
+```cpp
+WebSerial.printf(format, args...);
+```
+
+### `write()`
+
+Writes binary data to the WebSerial terminal.
+
+```cpp
+WebSerial.write(data);
+WebSerial.write(buffer, size);
+```

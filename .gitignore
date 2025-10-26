@@ -5,10 +5,15 @@
 /build
 
 # Generated files
+.next
+.vscode
 .docusaurus
 .cache-loader
+_pagefind/
+out/
 
 # Misc
+.env
 .DS_Store
 .env.local
 .env.development.local

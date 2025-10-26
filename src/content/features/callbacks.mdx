@@ -1,0 +1,46 @@
+---
+title: "Callbacks"
+description: "Learn how to use callbacks in WebSerial to handle incoming messages from the webserial terminal. This guide covers the onMessage callback for processing messages as strings or data streams."
+---
+
+import { Callout } from 'nextra/components'
+
+# Callbacks
+
+WebSerial comes with a single callback called `onMessage`. It's responsible for notifying your firmware whenever it has received a command/message from user via webserial terminal.
+
+If the callback is not registered, then the command received from terminal is simply discarded.
+
+## `onMessage` Callback
+
+The `onMessage` callback is triggered whenever a command/message is received from the user via the webserial terminal. It's a convenient way to handle incoming messages and execute specific actions based on the content of the message.
+
+<Callout emoji="💡">
+You can either register a callback to handle incoming messages as `String` or as data streams (byte array). If you register both types, the last registered callback will take precedence.
+</Callout>
+
+### Handle Incoming Messages as `String`
+
+```cpp
+// If you want to handle incoming messages as strings
+WebSerial.onMessage([](const String& msg) {
+  Serial.println(msg);
+});
+```
+
+### Handle Incoming Messages as Data Streams
+
+```cpp
+// If you want to handle incoming messages as data streams
+WebSerial.onMessage([&](uint8_t *data, size_t len) {
+  Serial.printf("Received %lu bytes from WebSerial: ", len);
+  Serial.write(data, len);
+  Serial.println();
+  WebSerial.println("Received Data...");
+  String d = "";
+  for(size_t i=0; i < len; i++){
+    d += char(data[i]);
+  }
+  WebSerial.println(d);
+});
+```

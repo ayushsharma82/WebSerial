@@ -1,0 +1,145 @@
+---
+title: "Branding"
+description: "Learn how to customize the logo displayed on the WebSerial terminal. This guide covers preparing your logo, converting it to a byte array, and modifying the necessary files in the WebSerial library."
+---
+
+import ProCallout from '@/src/components/ProCallout';
+import { Callout, Steps } from 'nextra/components'
+
+# Branding
+
+<br/>
+<ProCallout />
+<br/>
+
+<img className="mb-6 hidden dark:block max-w-[400px] rounded-lg" src="/assets/images/v2/branding.png" alt="Preview" />
+
+Branding in this context refers to the logo that is displayed on the WebSerial Pro terminal. You can easily replace the logo by defining the logo image as a byte array in the `logo.h` and `logo.cpp` files of the library's source code without even touching HTML or CSS.
+
+## Procedure
+
+To add your custom logo on the WebSerial Pro terminal, follow these steps:
+
+<Steps>
+
+### Prepare logos
+
+First, you need to create or obtain the logo image you want to display on the terminal. Ensure that the logo image is in a suitable format, such as a SVG (recommended) / PNG or JPG file and make sure your image is optimized & small in file size.
+
+Ideally you should use 2 different versions of the same logo which will be used for light and dark mode. The light logo should have darker colors, while the dark logo should have lighter colors. This will ensure that the logo is visible and looks good in both light and dark themes.
+
+### Convert logos
+
+Once you have prepared your logo image files, you need to convert these logos into byte arrays. Please use the below utility to easily convert your logo images into ready-to-use logo files for WebSerial Pro:
+
+<form className="flex flex-col gap-3 my-3" method="POST" action="https://compress.softt.io/webserial/logo" encType="multipart/form-data" target='_blank'>
+  <div>
+    <label htmlFor="light-logo-file-upload" className="block text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-2">
+      Select Light Logo
+    </label>
+    <input
+      type="file"
+      name="light"
+      id="light-logo-file-upload"
+      required
+      accept="image/*"
+      className="block border border-zinc-300 dark:border-zinc-800 p-3 w-full text-sm text-zinc-800 dark:text-zinc-300
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border
+            file:text-sm file:font-semibold file:cursor-pointer rounded-lg file:border-zinc-300
+            file:bg-zinc-100 dark:file:bg-zinc-900 dark:file:border-zinc-800 file:text-zinc-800 dark:file:text-zinc-200
+            hover:file:bg-zinc-200 dark:hover:file:bg-zinc-800 transition-all duration-300
+            cursor-pointer"
+    />
+  </div>
+  <div>
+    <label htmlFor="dark-logo-file-upload" className="block text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-2">
+      Select Dark Logo
+    </label>
+    <input
+      type="file"
+      name="dark"
+      id="dark-logo-file-upload"
+      required
+      accept="image/*"
+      className="block border border-zinc-300 dark:border-zinc-800 p-3 w-full text-sm text-zinc-800 dark:text-zinc-300
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border
+            file:text-sm file:font-semibold file:cursor-pointer rounded-lg file:border-zinc-300
+            file:bg-zinc-100 dark:file:bg-zinc-900 dark:file:border-zinc-800 file:text-zinc-800 dark:file:text-zinc-200
+            hover:file:bg-zinc-200 dark:hover:file:bg-zinc-800 transition-all duration-300
+            cursor-pointer"
+    />
+  </div>
+  <div>
+    <label htmlFor="logo-width" className="block text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-2">
+      Logo Width
+    </label>
+    <div>
+      <input type="number" name="width" defaultValue={155} min={0} max={500} required id="logo-width" aria-describedby="helper-text-explanation" className="bg-transparent border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-zinc-800 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0px" />
+    </div>
+  </div>
+  <div>
+    <label htmlFor="logo-height" className="block text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-2">
+      Logo Height
+    </label>
+    <div>
+      <input type="number" name="height" defaultValue={60} min={0} max={500} required id="logo-height" aria-describedby="helper-text-explanation" className="bg-transparent border border-zinc-300 text-zinc-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-zinc-800 dark:placeholder-zinc-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0px" />
+    </div>
+  </div>
+  <div>
+    {/* Hidden gzip input, always true */}
+    <input type="hidden" name="gzip" value="true" />
+  </div>
+  <div>
+    <p className="block text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-2">Convert</p>
+    <span className="text-sm text-zinc-500 dark:text-zinc-400 mb-2 block">
+      Click the button below to download your converted logo files into WebSerial Pro compatible format.
+    </span>
+    <button type='submit' className="flex items-center text-sm text-zinc-100 dark:text-zinc-300
+      py-2 px-4
+      border
+      font-semibold cursor-pointer rounded-lg border-blue-500
+      bg-blue-600 dark:bg-blue-900 dark:border-blue-800
+      hover:bg-blue-700 dark:hover:bg-blue-800 transition-all duration-300"
+    >
+      <span className='mr-2'>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4.5"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+      </span>
+      <span>
+        Download
+      </span>
+    </button>
+  </div>
+</form>
+
+<p className='mt-6'><small><i>This conversion utility is provided as-is, without warranty and liability of any kind. Branding including logos and images, may be subject to copyright and trademark laws. Ensure you have the necessary rights or permissions to use any branding elements in your project.</i></small></p>
+
+### Replace logo files inside WebSerial Pro library
+
+After downloading the converted logo files, you need to replace the existing logo files in the WebSerial Pro library with your new logo files.
+
+1. Extract the downloaded ZIP file containing the converted logo files.
+2. Replace the existing `logo.h` and `logo.cpp` files in the WebSerial Pro library with the new files from the extracted ZIP.
+
+### Upload firmware
+
+After making these changes, compile and upload the firmware with modified WebSerial Pro library to your device.
+
+<Callout type="info">
+  Please make sure to clear your browser cache or perform a hard refresh to see the changes immediately, as the browser may cache the previous logo image.
+</Callout>
+
+### Review Changes
+
+Once you have uploaded the firmware, open your WebSerial Pro terminal again in a web browser to see the changes. The terminal will automatically switch between light or dark logos based on the current theme.
+
+To adjust the logo size, you can directly modify the `WEBSERIAL_LOGO_WIDTH` and `WEBSERIAL_LOGO_HEIGHT` values in the `logo.h` file and re-upload the firmware. *Make sure to clear the browser cache again after making these changes.*
+
+</Steps>
+
+<br/>
+
+<Callout type="warning" emoji="⚠️">
+  Please note that branding, including logos and images, may be subject to copyright and trademark laws. Ensure you have the necessary rights or permissions to use any branding elements in your project.
+</Callout>
