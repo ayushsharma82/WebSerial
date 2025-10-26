@@ -5,11 +5,9 @@ const withNextra = nextra({
   search: {
     codeblocks: false,
   },
-  contentDirBasePath: '/',
 });
 
 const nextOptions = {
-  reactStrictMode: true,
   output: 'export',
   images: {
     unoptimized: true,
