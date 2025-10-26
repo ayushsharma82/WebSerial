@@ -1,0 +1,41 @@
+---
+title: High Performance Mode
+description: "Learn how to enable High Performance Mode in WebSerial to optimize data transmission and improve the performance of your IoT devices. This guide covers setup, usage, best practices, and use cases for the high performance feature."
+---
+
+import { Tabs } from 'nextra/components'
+
+# High Performance Mode
+
+WebSerial comes with an inbuilt High Performance Mode that optimizes data transmission for performance-critical applications. This mode should only be used when you require real-time logging and monitoring, as it minimizes latency and maximizes throughput by avoiding any kind of buffering for log messages.
+
+> [!NOTE]
+>
+> High Performance Mode should only be enabled when necessary, for example when your application is heavily dependent on large logs. Using this mode in scenarios where real-time logging is not required may lead to instability or performance degradation.
+
+
+<Tabs items={['Arduino IDE', 'PlatformIO']}>
+  <Tabs.Tab>
+    To enable High Performance Mode in Arduino IDE, follow these steps:
+
+    1. Open the `WebSerial.h` file located in your Arduino libraries folder.
+    2. At the top of the file, just after the `#include` statements, add the following line:
+    ```cpp
+    #define WSL_HIGH_PERF 1
+    ```
+    3. Save the file and restart your Arduino IDE to apply the changes.
+  </Tabs.Tab>
+  <Tabs.Tab>
+    You can easily enable High Perf mode by setting the build flag in your `platformio.ini` file.
+    1. Open the `platformio.ini` file of your project.
+    2. Add the following line under the `[env:<your_environment>]` section:
+    ```ini
+    build_flags = -DWSL_HIGH_PERF=1
+    ```
+    3. Save the changes to the `platformio.ini` file.
+    4. With PlatformIO, you can also further optimize AsyncWebServer *(used by WebSerial)* for high performance by adding the following additional build flags:
+    ```ini
+     -DCONFIG_ASYNC_TCP_QUEUE_SIZE=128 -D CONFIG_ASYNC_TCP_RUNNING_CORE=1 -DWS_MAX_QUEUED_MESSAGES=128
+    ```
+  </Tabs.Tab>
+</Tabs>
