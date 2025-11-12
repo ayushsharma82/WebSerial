@@ -102,8 +102,7 @@ typedef std::function<void(const String& msg)> WSLStringMessageHandler;
 class WebSerialClass : public Print {
   public:
     void begin(AsyncWebServer *server, const char* url = "/webserial");
-    inline void setAuthentication(const char* username, const char* password) { setAuthentication(String(username), String(password)); }
-    void setAuthentication(const String& username, const String& password);
+    void setAuthentication(String username, String password);
     void onMessage(WSLMessageHandler recv);
     void onMessage(WSLStringMessageHandler recv);
     bool getConnectionCount();

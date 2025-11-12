@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include <utility>
+
 // DO NOT change magic bytes
 #define WSL_MAGIC_BYTE_1              0xAB
 #define WSL_MAGIC_BYTE_2              0xCD
@@ -38,9 +40,9 @@ static const size_t WSL_HEAD_LEN = sizeof(WSL_HEAD) / sizeof(WSL_HEAD[0]);
 
 static const size_t WSL_MSG_SIZE_LEN = sizeof(uint16_t);
 
-void WebSerialClass::setAuthentication(const String& username, const String& password){
-  _username = username;
-  _password = password;
+void WebSerialClass::setAuthentication(String username, String password){
+  _username = std::move(username);
+  _password = std::move(password);
   _authenticate = !_username.isEmpty() && !_password.isEmpty();
   if (_ws != nullptr) {
     _ws->setAuthentication(_username.c_str(), _password.c_str());
@@ -99,11 +101,11 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
 
 // onMessage Callback Handler
 void WebSerialClass::onMessage(WSLMessageHandler recv) {
-  _recv = recv;
+  _recv = std::move(recv);
 }
 
 void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
-  _recvString = callback;
+  _recvString = std::move(callback);
   _recv = [&](uint8_t *data, size_t len) {
     if(data && len) {
       String msg;
