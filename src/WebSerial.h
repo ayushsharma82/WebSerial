@@ -106,7 +106,7 @@ class WebSerialClass : public Print {
     void setAuthentication(const String& username, const String& password);
     void onMessage(WSLMessageHandler recv);
     void onMessage(WSLStringMessageHandler recv);
-    bool getConnectionCount();
+    size_t getConnectionCount();
     size_t write(uint8_t) override;
     size_t write(const uint8_t* buffer, size_t size) override;
     
@@ -170,13 +170,12 @@ class WebSerialClass : public Print {
     size_t _print_buffer_offset = 0;
     uint8_t _print_buffer[WSL_PRINT_BUFFER_SIZE];
     unsigned long _last_print_buffer_write_time = 0;
-    unsigned long _last_print_buffer_flush_time = 0;
+    // Time when the global buffer went from empty to non-empty
+    unsigned long _global_buffer_start_time = 0;
 
     // Print
     bool _has_enough_space(size_t size);
-    size_t _start_row();
     size_t _write_row(uint8_t *data, size_t len);
-    size_t _end_row();
     void _flush_print_buffer();
     void _flush_global_buffer();
 #endif

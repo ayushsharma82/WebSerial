@@ -67,7 +67,7 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
   });
 
   // WS Handler
-  _ws->onEvent([&](__unused AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, __unused void * arg, uint8_t *data, __unused size_t len) -> void {
+  _ws->onEvent([&](__unused AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) -> void {
     // if(type == WS_EVT_CONNECT){
     // } else if(type == WS_EVT_DISCONNECT){
     // } else if(type == WS_EVT_DATA){
@@ -76,11 +76,22 @@ void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
       return;
     }
     if(type == WS_EVT_DATA){
+      // Only accept complete, unfragmented binary frames
+      AwsFrameInfo *info = (AwsFrameInfo*)arg;
+      if (info == nullptr || !info->final || info->index != 0 || info->len != len || info->opcode != WS_BINARY) {
+        return;
+      }
       // Detect magic bytes
-      if (data[0] == WSL_MAGIC_BYTE_1 && data[1] == WSL_MAGIC_BYTE_2) {
+      if (len >= 3 && data[0] == WSL_MAGIC_BYTE_1 && data[1] == WSL_MAGIC_BYTE_2) {
         if (data[2] == WSLPacketType::WSL_MESSAGE) {
-          // Parse message size (uint16_t)
+          if (len < 5) {
+            return;
+          }
+          // Parse message size (uint16_t), never trusting it beyond the received frame
           size_t message_size = (data[4] << 8) | data[3];
+          if (message_size > len - 5) {
+            message_size = len - 5;
+          }
           // Issue callback
           if(_recv != nullptr){
             _recv(data + 5, message_size);
@@ -114,7 +125,7 @@ void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
   };
 }
 
-bool WebSerialClass::getConnectionCount() {
+size_t WebSerialClass::getConnectionCount() {
   return _ws == nullptr ? 0 : _ws->count();
 }
 
@@ -252,10 +263,13 @@ void WebSerialClass::_flush_print_buffer() {
       _flush_global_buffer();
     }
 
+    if (_buffer_offset == 0) {
+      _global_buffer_start_time = millis();
+    }
+
     // Flush print to global buffer and create a packet
     _write_row(_print_buffer, _print_buffer_offset);
     _print_buffer_offset = 0;
-    _last_print_buffer_flush_time = millis();
   }
 }
 
@@ -271,6 +285,9 @@ void WebSerialClass::_flush_global_buffer() {
 
 void WebSerialClass::loop() {
 #ifndef WSL_HIGH_PERF
+  if (!_ws)
+    return;
+
   if ((unsigned long)(millis() - _last_cleanup_time) > WSL_CLEANUP_TIME_MS) {
     _last_cleanup_time = millis();
     _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
@@ -283,9 +300,9 @@ void WebSerialClass::loop() {
     }
   }
 
-  // If FLUSH_TIME ms has been passed since last flush time, flush logs
-  if (_last_print_buffer_flush_time != 0) {
-    if ((unsigned long)(millis() - _last_print_buffer_flush_time) > WSL_GLOBAL_FLUSH_TIME_MS) {
+  // If FLUSH_TIME ms has passed since the oldest data entered the global buffer, flush logs
+  if (_buffer_offset > 0) {
+    if ((unsigned long)(millis() - _global_buffer_start_time) > WSL_GLOBAL_FLUSH_TIME_MS) {
       _flush_global_buffer();
     }
   }

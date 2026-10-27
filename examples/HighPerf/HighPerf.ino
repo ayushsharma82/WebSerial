@@ -85,4 +85,7 @@ void loop() {
 
     last = millis();
   }
+
+  // Required unless WSL_HIGH_PERF is defined: flushes buffered logs to the browser
+  WebSerial.loop();
 }

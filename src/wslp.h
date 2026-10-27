@@ -8,9 +8,9 @@
 #endif
 
 #if WEBSERIAL_USE_BROTLI_COMPRESSION == 1
-  extern const uint8_t WEBSERIAL_HTML[20654];
+  extern const uint8_t WEBSERIAL_HTML[20658];
 #else
-  extern const uint8_t WEBSERIAL_HTML[22930];
+  extern const uint8_t WEBSERIAL_HTML[22949];
 #endif
 
 #endif
