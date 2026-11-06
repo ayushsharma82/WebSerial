@@ -82,6 +82,14 @@ WebSerial Pro comes with the following extended functionality:
 
 <br>
 
+## Building a product with WebSerial?
+
+<a href="https://softt.io/contact?utm_source=github&utm_medium=readme&utm_campaign=webserial-oss" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/.github/softt-engineering-dark.svg"><img src="https://raw.githubusercontent.com/ayushsharma82/WebSerial/master/.github/softt-engineering-light.svg" alt="SOFTT Engineering: shipping a product with WebSerial? Book a free engineering review." width="100%"></picture></a>
+
+WebSerial is built and maintained by [SOFTT](https://softt.io/?utm_source=github&utm_medium=readme&utm_campaign=webserial-oss), an IoT product studio. When the library is one piece of something bigger, the same engineers can design the rest of it, from the electronics and firmware to the cloud dashboard and mobile app, and take it from first brief to pilot run at a fixed price. Start with a **[free 30-minute engineering review](https://softt.io/contact?utm_source=github&utm_medium=readme&utm_campaign=webserial-oss)**, see **[products we've shipped](https://softt.io/portfolio?utm_source=github&utm_medium=readme&utm_campaign=webserial-oss)**, or write to **[hello@softt.io](mailto:hello@softt.io)**.
+
+<br/>
+
 ## Contributions
 
 Every contribution to this repository is highly appreciated! If you spot any bug or problem, open a issue or pull request so that it can be rectified for everyone.
