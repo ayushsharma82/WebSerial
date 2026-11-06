@@ -1,42 +1,123 @@
 #include "WebSerial.h"
 
 #include "wslp.h"
+#include "core/wsl_config.h"
+#include "core/wsl_stream.h"
 
-#include <assert.h>
+#include <memory>
+#include <vector>
 
-// DO NOT change magic bytes
-#define WSL_MAGIC_BYTE_1              0xAB
-#define WSL_MAGIC_BYTE_2              0xCD
-#define WSL_LOG_PACKET_HEADER_SIZE    14
-#define WSL_CALC_LOG_PACKET_SIZE(len) (WSL_LOG_PACKET_HEADER_SIZE + len)
+#if defined(ESP32)
+  #include <mutex>
+#elif defined(ESP8266)
+  extern "C" {
+    #include "user_interface.h"
+  }
+  #include <coredecls.h>
+#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
+  #define WSL_RP2XXX
+  #include <pico/mutex.h>
+  #include <pico/unique_id.h>
+  extern volatile int __inLWIP;   // arduino-pico: > 0 while inside lwIP (incl. network callbacks)
+#endif
 
-typedef enum {
-  WSL_WRITE_ROW = 0x01,
-  WSL_MESSAGE = 0x02,
-  WSL_PING = 0x03,
-  WSL_PONG = 0x04,
-} WSLPacketType;
+// ---------------------------------------------------------------- Platform layer
+//
+// One lock protects the log stream. Producers (any task/core) only copy into the ring under it;
+// the network work happens outside it:
+//   ESP32   - a small background task sends, woken by write()/ACKs and every WSL_PARTIAL_FLUSH_MS
+//   ESP8266 - sends synchronously (loop and network callbacks never preempt each other) plus an os_timer
+//   RP2040  - sends synchronously from core 0 outside interrupts; loop() does the housekeeping
 
-static const uint8_t WSL_PONG_MSG[] = {WSL_MAGIC_BYTE_1, WSL_MAGIC_BYTE_2, WSLPacketType::WSL_PONG};
-static const size_t WSL_PONG_MSG_LEN = sizeof(WSL_PONG_MSG) / sizeof(WSL_PONG_MSG[0]);
+#if defined(ESP32)
+  static std::recursive_mutex wsl_mutex;
+  struct WSLLock {
+    WSLLock() { wsl_mutex.lock(); }
+    ~WSLLock() { wsl_mutex.unlock(); }
+  };
+  static TaskHandle_t wsl_task = nullptr;
+#elif defined(WSL_RP2XXX)
+  auto_init_recursive_mutex(wsl_mutex);
+  struct WSLLock {
+    WSLLock() { recursive_mutex_enter_blocking(&wsl_mutex); }
+    ~WSLLock() { recursive_mutex_exit(&wsl_mutex); }
+  };
+#else
+  struct WSLLock {};
+  static ETSTimer wsl_timer;
+#endif
 
-static const uint8_t WSL_HEAD[] = {
-  WSL_MAGIC_BYTE_1,             // Magic Bytes
-  WSL_MAGIC_BYTE_2,             // Magic Bytes
-  WSLPacketType::WSL_WRITE_ROW, // Packet Type (1 byte)
-  0x00,                         // Reserved
-  0x00,                         // Reserved
-  0x00,                         // Reserved
-  0x00,                         // Reserved
-  0x00,                         // Padding
-  0x00,                         // Padding
-  0x00,                         // Padding
-  0x00,                         // Padding
-  0x00                          // Reserved
+// Ring buffer + per-client cursors (one WebSerial instance per firmware), guarded by WSLLock
+static uint8_t wsl_storage[WSL_BUFFER_SIZE];
+static wsl::LogStream wsl_stream(wsl_storage, sizeof(wsl_storage));
+
+// Identifies the current writer so partial lines from different tasks/cores are kept apart
+static uintptr_t wsl_writer_id() {
+#if defined(ESP32)
+  return reinterpret_cast<uintptr_t>(xTaskGetCurrentTaskHandle());
+#elif defined(ESP8266)
+  return can_yield() ? 1 : 2;   // loop context vs. system/network context
+#elif defined(WSL_RP2XXX)
+  return 1 + get_core_num() + (__get_current_exception() ? 2 : 0);
+#else
+  return 1;
+#endif
+}
+
+static String wsl_device_id() {
+#if defined(ESP32)
+  uint32_t chipId = 0;
+  for (int i = 0; i < 17; i = i + 8) {
+    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  }
+  String id = String(chipId, HEX);
+#elif defined(ESP8266)
+  String id = String(ESP.getChipId(), HEX);
+#elif defined(WSL_RP2XXX)
+  char raw[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+  pico_get_unique_board_id_string(raw, sizeof(raw));
+  String id = raw;
+#else
+  String id = "";
+#endif
+  id.toUpperCase();
+  return String(HARDWARE) + "-" + id;
+}
+
+// ---------------------------------------------------------------- Inbound frames
+
+class WSLInbound : public wsl::InboundHandler {
+  public:
+    WSLInbound(const WSLMessageHandler& recv, AsyncWebSocketClient* client) : _recv(recv), _client(client) {}
+
+    void on_ack(uint32_t end) override {
+      WSLLock lock;
+      wsl_stream.on_ack(_client->id(), end, millis());
+      acked = true;
+    }
+
+    void on_input(const uint8_t* data, size_t len) override {
+      if (_recv != nullptr && len > 0) {
+        _recv(const_cast<uint8_t*>(data), len);
+      }
+    }
+
+    void on_ping(uint32_t seq) override {
+      uint8_t pong[wsl::PONG_FRAME_SIZE];
+      wsl::write_pong(pong, seq, millis());
+      _client->binary(pong, sizeof(pong));
+    }
+
+    bool acked = false;
+
+  private:
+    const WSLMessageHandler& _recv;
+    AsyncWebSocketClient* _client;
 };
-static const size_t WSL_HEAD_LEN = sizeof(WSL_HEAD) / sizeof(WSL_HEAD[0]);
 
-static const size_t WSL_MSG_SIZE_LEN = sizeof(uint16_t);
+// ---------------------------------------------------------------- Setup
+
+WebSerialClass::WebSerialClass() {}
 
 void WebSerialClass::setAuthentication(const String& username, const String& password){
   _username = username;
@@ -49,52 +130,111 @@ void WebSerialClass::setAuthentication(const String& username, const String& pas
 
 void WebSerialClass::begin(AsyncWebServer *server, const char* url) {
   _server = server;
-  _ws = new AsyncWebSocket("/wserial");
+
+  // Page and WebSocket share one URL (the WebSocket handler only matches upgrade requests)
+  _url = url;
+  if (!_url.startsWith("/")) {
+    _url = "/" + _url;
+  }
+  while (_url.length() > 1 && _url.endsWith("/")) {
+    _url.remove(_url.length() - 1);
+  }
+  _deviceId = wsl_device_id();
+
+  _ws = new AsyncWebSocket(_url);
 
   if (_authenticate) {
     _ws->setAuthentication(_username.c_str(), _password.c_str());
   }
 
+  _ws->onEvent([this](__unused AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) -> void {
+    _onEvent(client, type, arg, data, len);
+  });
+
+  // Attach AsyncWebServer with Websockets
+  _server->addHandler(_ws);
+
   // Webpage Handler
-  _server->on(url, HTTP_GET, [&](AsyncWebServerRequest *request){
+  _server->on(_url.c_str(), HTTP_GET, [&](AsyncWebServerRequest *request){
     if(_authenticate){
       if(!request->authenticate(_username.c_str(), _password.c_str()))
         return request->requestAuthentication();
     }
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", WEBSERIAL_HTML, sizeof(WEBSERIAL_HTML));
     response->addHeader("Content-Encoding", "gzip");
-    request->send(response);        
+    request->send(response);
   });
 
-  // WS Handler
-  _ws->onEvent([&](__unused AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, __unused void * arg, uint8_t *data, __unused size_t len) -> void {
-    // if(type == WS_EVT_CONNECT){
-    // } else if(type == WS_EVT_DISCONNECT){
-    // } else if(type == WS_EVT_DATA){
-    if (type == WS_EVT_CONNECT) {
-      client->setCloseClientOnQueueFull(false);
+#if defined(ESP32)
+  if (wsl_task == nullptr) {
+    xTaskCreate([](void* self) {
+      for (;;) {
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(WSL_PARTIAL_FLUSH_MS));
+        static_cast<WebSerialClass*>(self)->loop();
+      }
+    }, "webserial", 4096, this, tskIDLE_PRIORITY + 2, &wsl_task);
+  }
+#elif defined(ESP8266)
+  os_timer_disarm(&wsl_timer);
+  os_timer_setfn(&wsl_timer, [](void* self) { static_cast<WebSerialClass*>(self)->loop(); }, this);
+  os_timer_arm(&wsl_timer, WSL_PARTIAL_FLUSH_MS, true);
+#endif
+}
+
+void WebSerialClass::_onEvent(AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    client->setCloseClientOnQueueFull(false);
+
+    // WELCOME goes out before the client is registered, so no LOGS frame can overtake it
+    uint32_t historyEnd;
+    {
+      WSLLock lock;
+      historyEnd = uint32_t(wsl_stream.head());
+    }
+    wsl::Welcome info;
+    info.edition = 0;
+    info.hardware = HARDWARE;
+    info.device_id = _deviceId.c_str();
+    info.device_ms = millis();
+    info.history_end = historyEnd;
+    info.max_line = WSL_MAX_LINE;
+    std::vector<uint8_t> welcome;
+    wsl::append_welcome(welcome, info);
+    client->binary(welcome.data(), welcome.size());
+
+    bool added;
+    {
+      WSLLock lock;
+      added = wsl_stream.add_client(client->id(), millis(), nullptr);
+    }
+    if (!added) {
+      client->close();
       return;
     }
-    if(type == WS_EVT_DATA){
-      // Detect magic bytes
-      if (data[0] == WSL_MAGIC_BYTE_1 && data[1] == WSL_MAGIC_BYTE_2) {
-        if (data[2] == WSLPacketType::WSL_MESSAGE) {
-          // Parse message size (uint16_t)
-          size_t message_size = (data[4] << 8) | data[3];
-          // Issue callback
-          if(_recv != nullptr){
-            _recv(data + 5, message_size);
-          }
-        } else if (data[2] == WSLPacketType::WSL_PING) {
-          // Send pong
-          client->binary(WSL_PONG_MSG, WSL_PONG_MSG_LEN);
-        }
-      }
+    if (_onConnect) {
+      _onConnect(client->id());
     }
-  });
-
-  // Attach AsyncWebServer with Websockets
-  _server->addHandler(_ws);
+    _kick();
+  } else if (type == WS_EVT_DISCONNECT) {
+    {
+      WSLLock lock;
+      wsl_stream.remove_client(client->id());
+    }
+    if (_onDisconnect) {
+      _onDisconnect(client->id());
+    }
+  } else if (type == WS_EVT_DATA) {
+    // Only accept complete, unfragmented binary frames; the parser never reads past len
+    AwsFrameInfo *info = (AwsFrameInfo*)arg;
+    if (info == nullptr || !info->final || info->index != 0 || info->len != len || info->opcode != WS_BINARY) {
+      return;
+    }
+    WSLInbound inbound(_recv, client);
+    wsl::parse_inbound(data, len, inbound, WSL_MAX_INPUT);
+    if (inbound.acked) {
+      _kick();
+    }
+  }
 }
 
 // onMessage Callback Handler
@@ -114,206 +254,192 @@ void WebSerialClass::onMessage(WSLStringMessageHandler callback) {
   };
 }
 
-bool WebSerialClass::getConnectionCount() {
+void WebSerialClass::onConnect(WSLClientHandler callback) {
+  _onConnect = callback;
+}
+
+void WebSerialClass::onDisconnect(WSLClientHandler callback) {
+  _onDisconnect = callback;
+}
+
+size_t WebSerialClass::getConnectionCount() {
   return _ws == nullptr ? 0 : _ws->count();
 }
 
-// Print func
+// ---------------------------------------------------------------- Writing
+
 size_t WebSerialClass::write(uint8_t m) {
-  if (!_ws)
-    return 0;
-
-#ifdef WSL_HIGH_PERF
-  // We do not support non-buffered write on webserial for the HIGH_PERF version
-  // we fail with a stack trace allowing the user to change the code to use write(const uint8_t* buffer, size_t size) instead
-  if(!_initialBufferCapacity) {
-#if defined(ESP8266)
-    ets_printf("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
-#elif defined(ESP32)
-    log_e("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
-#elif defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
-    Serial.println("Non-buffered write is not supported. Please use write(const uint8_t* buffer, size_t size) instead.");
-#endif
-    assert(false);
-    return 0;
-  }
-#endif // WSL_HIGH_PERF
-
-  write(&m, 1);
-  return(1);
+  return write(&m, 1);
 }
 
-// Println / Printf / Write func
 size_t WebSerialClass::write(const uint8_t* buffer, size_t size) {
-  if (!_ws || size == 0)
+  if (buffer == nullptr || size == 0)
     return 0;
-
-#ifdef WSL_HIGH_PERF
-  // No buffer, send directly (i.e. use case for log streaming)
-  if (!_initialBufferCapacity) {
-    size = buffer[size - 1] == '\n' ? size - 1 : size;
-    _send(buffer, size);
+  // Printing from another file's global constructor can run before the stream is constructed
+  if (wsl_stream.capacity() == 0)
     return size;
-  }
 
-  // fill the buffer while sending data for each EOL
-  size_t start = 0, end = 0;
-  while (end < size) {
-    if (buffer[end] == '\n') {
-      if (end > start) {
-        _buffer.concat(reinterpret_cast<const char*>(buffer + start), end - start);
+#if WSL_OVERFLOW_POLICY == WSL_OVERFLOW_BLOCK
+  if (_canBlock()) {
+    // Room needed: the bytes plus one record header per line, capped at what the ring can ever free
+    size_t lines = 1;
+    for (const uint8_t* p = buffer; (p = (const uint8_t*)memchr(p, '\n', size - size_t(p - buffer))) != nullptr; p++) lines++;
+    size_t need = size + lines * wsl::RECORD_HEADER_SIZE;
+    if (need > wsl_stream.capacity()) need = wsl_stream.capacity();
+    unsigned long start = millis();
+    for (;;) {
+      {
+        WSLLock lock;
+        if (wsl_stream.has_space_for(need, millis(), WSL_STALL_MS)) break;
       }
-      _send(reinterpret_cast<const uint8_t*>(_buffer.c_str()), _buffer.length());
-      start = end + 1;
+      if ((unsigned long)(millis() - start) >= WSL_BLOCK_TIMEOUT_MS) break;
+      _kick();
+      delay(1);
     }
-    end++;
   }
-  if (end > start) {
-    _buffer.concat(reinterpret_cast<const char*>(buffer + start), end - start);
+#endif
+
+  bool committed;
+  {
+    WSLLock lock;
+    committed = wsl_stream.write(wsl_writer_id(), millis(), buffer, size);
+  }
+  if (committed) {
+    _kick();
   }
   return size;
-#else
-  loop();
+}
 
-  if (_print_buffer_offset + size > WSL_PRINT_BUFFER_SIZE) {
-    // Flush print buffer if full
-    _flush_print_buffer();
-  }
-    
-  memcpy(_print_buffer + _print_buffer_offset, buffer, size);
-  _print_buffer_offset += size;
-  _last_print_buffer_write_time = micros();
-  return(size);
+bool WebSerialClass::_canBlock() {
+#if defined(ESP32)
+  return !xPortInIsrContext() && xTaskGetCurrentTaskHandle() != wsl_task && strcmp(pcTaskGetName(nullptr), "async_tcp") != 0;
+#elif defined(ESP8266)
+  return can_yield();
+#elif defined(WSL_RP2XXX)
+  return !__get_current_exception() && __inLWIP == 0;
+#else
+  return false;
 #endif
 }
 
-#ifdef WSL_HIGH_PERF
-void WebSerialClass::_send(const uint8_t* buffer, size_t size) {
-  if (_ws && size > 0) {
-    _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
-    if (_ws->count()) {
-      if (size > UINT16_MAX)
-        size = UINT16_MAX;
-      AsyncWebSocketMessageBuffer* wsbuffer = _ws->makeBuffer(WSL_HEAD_LEN + WSL_MSG_SIZE_LEN + size);
-      _write_row_packet(wsbuffer->get(), buffer, size);
-      _ws->binaryAll(wsbuffer);
+// ---------------------------------------------------------------- Sending
+
+void WebSerialClass::_kick() {
+  if (_ws == nullptr)
+    return;
+#if defined(ESP32)
+  if (wsl_task != nullptr) {
+    xTaskNotifyGive(wsl_task);
+  }
+#elif defined(WSL_RP2XXX)
+  // ESPAsyncWebServer is not multicore-safe on RP2040: only core 0 touches it, never from an interrupt
+  if (get_core_num() == 0 && !__get_current_exception()) {
+    _pump();
+  }
+#else
+  _pump();
+#endif
+}
+
+void WebSerialClass::_pump() {
+  if (_ws == nullptr)
+    return;
+  {
+    WSLLock lock;
+    if (_pumping) {
+      // Another context is sending: it will pick up the new data
+      _pumpAgain = true;
+      return;
+    }
+    _pumping = true;
+  }
+  uint32_t ids[WSL_MAX_CLIENTS];
+  for (;;) {
+    bool more;
+    {
+      WSLLock lock;
+      more = wsl_stream.sendable();
+      if (!more) {
+        if (!_pumpAgain) {
+          _pumping = false;
+          return;
+        }
+        _pumpAgain = false;
+        continue;
+      }
+    }
+    AsyncWebSocketSharedBuffer message = std::make_shared<std::vector<uint8_t>>();
+    message->reserve(WSL_MAX_FRAME);
+    size_t recipients;
+    {
+      WSLLock lock;
+      recipients = wsl_stream.next_message(millis(), *message, ids, WSL_MAX_CLIENTS, WSL_MAX_FRAME);
+    }
+    if (recipients == 0)
+      continue;
+    if (message->size() < message->capacity() / 2) {
+      message->shrink_to_fit();
+    }
+    // One shared buffer for every browser at the same position; the library looks clients up by id under its own lock
+    for (size_t i = 0; i < recipients; i++) {
+      _ws->binary(ids[i], message);
     }
   }
-
-  // if buffer grew too much, free it, otherwise clear it
-  if (_initialBufferCapacity) {
-    if (_buffer.length() > _initialBufferCapacity) {
-      setBuffer(_initialBufferCapacity);
-    } else {
-      #if defined(TARGET_RP2040) || defined(TARGET_RP2350) || defined(PICO_RP2040) || defined(PICO_RP2350)
-        _buffer = "";
-      #else
-        _buffer.clear();
-      #endif
-    }
-  }
 }
-
-#else // WSL_HIGH_PERF
-
-bool WebSerialClass::_has_enough_space(size_t size) {
-  // Check if total packet size exceeds buffer limit
-  return (_buffer_offset + WSL_CALC_LOG_PACKET_SIZE(size) > WSL_BUFFER_SIZE);
-}
-
-size_t WebSerialClass::_write_row(uint8_t *data, size_t len) {
-  // Split the logData into multiple packets
-  size_t remaining_size = len;
-  uint8_t* current_ptr = data;
-
-  while (remaining_size > 0) {
-    size_t packet_size = (remaining_size > WSL_MAX_ROW_PACKET_PAYLOAD_SIZE) ? WSL_MAX_ROW_PACKET_PAYLOAD_SIZE : remaining_size;
-
-    // Clear if buffer is full
-    if (!_has_enough_space(packet_size)) {
-      _flush_global_buffer();
-    }
-
-    // Write Packet to Buffer
-    _buffer_offset += _write_row_packet(_buffer, current_ptr, packet_size);
-
-    // Set remaining size
-    remaining_size -= packet_size;
-    current_ptr += packet_size;
-  }
-
-  return len;
-}
-
-void WebSerialClass::_flush_print_buffer() {
-  if (_print_buffer_offset > 0) {
-    if (_buffer_offset + _print_buffer_offset > WSL_BUFFER_SIZE) {
-      // Flush global buffer to websocket
-      _flush_global_buffer();
-    }
-
-    // Flush print to global buffer and create a packet
-    _write_row(_print_buffer, _print_buffer_offset);
-    _print_buffer_offset = 0;
-    _last_print_buffer_flush_time = millis();
-  }
-}
-
-void WebSerialClass::_flush_global_buffer() {
-  if (_buffer_offset > 0) {
-    // Flush buffer to websocket
-    _ws->binaryAll(_buffer, _buffer_offset);
-    // Reset buffer offset
-    _buffer_offset = 0;
-  }
-}
-#endif // WSL_HIGH_PERF
 
 void WebSerialClass::loop() {
-#ifndef WSL_HIGH_PERF
-  if ((unsigned long)(millis() - _last_cleanup_time) > WSL_CLEANUP_TIME_MS) {
-    _last_cleanup_time = millis();
-    _ws->cleanupClients(WSL_MAX_WS_CLIENTS);
-  }
-
-  // If FLUSH_TIME ms has been passed since last packet time, flush logs
-  if (_last_print_buffer_write_time != 0) {
-    if ((unsigned long)(micros() - _last_print_buffer_write_time) > WSL_PRINT_FLUSH_TIME_US) {
-      _flush_print_buffer();
+  if (_ws == nullptr)
+    return;
+#if defined(WSL_RP2XXX)
+  if (get_core_num() != 0 || __get_current_exception())
+    return;
+#endif
+  uint32_t stale[WSL_MAX_CLIENTS];
+  size_t staleCount;
+  uint32_t now;
+  {
+    WSLLock lock;
+    // Read the clock under the lock: another task may stamp a send between millis() and the lock
+    now = millis();
+    wsl_stream.flush_idle(now, WSL_PARTIAL_FLUSH_MS);
+    staleCount = wsl_stream.stale_clients(now, WSL_ACK_TIMEOUT_MS, stale, WSL_MAX_CLIENTS);
+    for (size_t i = 0; i < staleCount; i++) {
+      wsl_stream.remove_client(stale[i]);
     }
   }
-
-  // If FLUSH_TIME ms has been passed since last flush time, flush logs
-  if (_last_print_buffer_flush_time != 0) {
-    if ((unsigned long)(millis() - _last_print_buffer_flush_time) > WSL_GLOBAL_FLUSH_TIME_MS) {
-      _flush_global_buffer();
-    }
+  // Browsers that stopped acknowledging are closed; they reconnect and catch up from history
+  for (size_t i = 0; i < staleCount; i++) {
+#if defined(ESP32)
+    log_w("[WebSerial] closing client %u: no acknowledgement for %u ms", stale[i], WSL_ACK_TIMEOUT_MS);
+#endif
+    _ws->close(stale[i]);
   }
-#endif // WSL_HIGH_PERF
+  if ((unsigned long)(now - _lastCleanup) > 1000) {
+    _lastCleanup = now;
+    _ws->cleanupClients(WSL_MAX_CLIENTS);
+  }
+  _pump();
 }
+
+// ---------------------------------------------------------------- Deprecated v2 API
 
 void WebSerialClass::setBuffer(size_t initialCapacity) {
-#ifdef WSL_HIGH_PERF
-  assert(initialCapacity <= UINT16_MAX);
-  _initialBufferCapacity = initialCapacity;
-  _buffer = String();
-  _buffer.reserve(initialCapacity);
-#endif
+  (void)initialCapacity;
 }
 
-size_t WebSerialClass::_write_row_packet(uint8_t* dest, const uint8_t *payload, size_t payload_size) {
-  // sanity check to ensure the payload size is within the hard limit
-  if(payload_size > UINT16_MAX)
-    payload_size = UINT16_MAX;
-  // Write header
-  memmove(dest, WSL_HEAD, WSL_HEAD_LEN);
-  // Message Length (2 bytes, little-endian)
-  dest[WSL_HEAD_LEN] = static_cast<uint8_t>(payload_size & 0xFF);        // Low byte
-  dest[WSL_HEAD_LEN + 1] = static_cast<uint8_t>((payload_size >> 8) & 0xFF); // High byte
-  // Set Message
-  memmove(dest + WSL_HEAD_LEN + WSL_MSG_SIZE_LEN, payload, payload_size);
-  // Return total packet size
-  return WSL_HEAD_LEN + WSL_MSG_SIZE_LEN + payload_size;
+AsyncWebSocketMessageBuffer* WebSerialClass::makeBuffer(size_t size) {
+  return _ws == nullptr ? nullptr : _ws->makeBuffer(size);
+}
+
+void WebSerialClass::send(AsyncWebSocketMessageBuffer* buffer) {
+  if (buffer == nullptr)
+    return;
+  // v2 sent each buffer as one line
+  write(buffer->get(), buffer->length());
+  if (buffer->length() == 0 || buffer->get()[buffer->length() - 1] != '\n') {
+    write('\n');
+  }
+  delete buffer;
 }
 
 WebSerialClass WebSerial;

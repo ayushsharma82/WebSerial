@@ -2,13 +2,11 @@
   "name": "WebSerial",
   "keywords": "WebSerial, remote, terminal, serial, monitor, ESP8266, ESP32, RP2040, RP2350, webpage, websocket, wireless",
   "description": "WebSerial is a remote terminal which is accessible via browser to log, monitor or debug your firmware remotely.",
-  "repository":
-  {
+  "repository": {
     "type": "git",
     "url": "https://github.com/ayushsharma82/WebSerial.git"
   },
-  "authors":
-  [
+  "authors": [
     {
       "name": "Ayush Sharma",
       "email": "asrocks5@gmail.com",
@@ -17,13 +15,21 @@
   ],
   "version": "2.1.2",
   "frameworks": "arduino",
-  "platforms": ["espressif8266", "espressif32", "raspberrypi"],
+  "platforms": [
+    "espressif8266",
+    "espressif32",
+    "raspberrypi"
+  ],
   "dependencies": [
     {
       "owner": "esp32async",
       "name": "ESPAsyncWebServer",
-      "version": "^3.9.0",
-      "platforms": ["espressif8266", "espressif32", "raspberrypi"]
+      "version": "^3.12.1",
+      "platforms": [
+        "espressif8266",
+        "espressif32",
+        "raspberrypi"
+      ]
     }
   ]
 }

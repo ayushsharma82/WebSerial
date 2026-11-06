@@ -73,7 +73,7 @@ jobs:
 
       - name: Install AsyncTCP (ESP32)
         if: ${{ matrix.core == 'esp32:esp32' }}
-        run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/ESP32Async/AsyncTCP#v3.4.9
+        run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/ESP32Async/AsyncTCP#v3.5.0
 
       - name: Install ESPAsyncTCP (ESP8266)
         if: ${{ matrix.core == 'esp8266:esp8266' }}
@@ -84,7 +84,7 @@ jobs:
         run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/ayushsharma82/RPAsyncTCP#v1.3.2
 
       - name: Install ESPAsyncWebServer
-        run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/ESP32Async/ESPAsyncWebServer#v3.9.2
+        run: ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/ESP32Async/ESPAsyncWebServer#v3.12.1
 
       - name: Build Demo
         run: arduino-cli compile --library . --warnings none -b ${{ matrix.board }} "examples/Demo/Demo.ino"
@@ -112,10 +112,6 @@ jobs:
           - name: ESP8266 (D1 Mini)
             env: ci-esp8266
             board: d1_mini
-
-          - name: ESP32 (Arduino Core v2)
-            env: ci-esp32-arduino-2
-            board: esp32dev
 
           - name: ESP32
             env: ci-esp32
@@ -169,7 +165,24 @@ jobs:
       - run: PLATFORMIO_SRC_DIR=examples/Demo_AP PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
       - run: PLATFORMIO_SRC_DIR=examples/HighPerf PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
       - run: PLATFORMIO_SRC_DIR=examples/Logging PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
-      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Demo" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
-      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Demo_AP" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
-      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/Logging" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
-      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_HIGH_PERF" PLATFORMIO_SRC_DIR="examples/HighPerf" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      # Lossless overflow policy (writer waits for space)
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_OVERFLOW_POLICY=1" PLATFORMIO_SRC_DIR="examples/Demo" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+      - run: PLATFORMIO_BUILD_FLAGS="-DWSL_OVERFLOW_POLICY=1" PLATFORMIO_SRC_DIR="examples/HighPerf" PIO_BOARD=${{ matrix.board }} pio run -e ${{ matrix.env }}
+
+  native:
+    name: Native unit tests (core + protocol vectors)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+
+      - run: pio test -e native

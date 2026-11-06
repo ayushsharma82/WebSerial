@@ -1,12 +1,8 @@
 /*
- * This example shows how to use WebSerial variant to send logging data to the browser.
+ * This example shows how to use WebSerial to stream logging data to the browser.
  *
- * Before using this example, make sure to look at the WebSerial example before and its description.\
- *
- * You might want to control these flags to control the async library performance:
- *  -D CONFIG_ASYNC_TCP_QUEUE_SIZE=128
- *  -D CONFIG_ASYNC_TCP_RUNNING_CORE=1
- *  -D WS_MAX_QUEUED_MESSAGES=128
+ * Lines are buffered and batched automatically. Lines printed before a browser connects
+ * (e.g. during boot) are replayed to it as history.
  */
 #include <Arduino.h>
 
@@ -40,7 +36,6 @@ void setup() {
 
   WebSerial.onMessage([](const String& msg) { Serial.println(msg); });
   WebSerial.begin(&server);
-  WebSerial.setBuffer(100);
 
   server.onNotFound([](AsyncWebServerRequest* request) { request->redirect("/webserial"); });
   server.begin();
@@ -63,4 +58,7 @@ void loop() {
 
     last = millis();
   }
+
+  // Housekeeping (required on RP2040/RP2350, harmless elsewhere)
+  WebSerial.loop();
 }

@@ -3,14 +3,6 @@
 
 #include <Arduino.h>
 
-#ifndef WEBSERIAL_USE_BROTLI_COMPRESSION
-    #define WEBSERIAL_USE_BROTLI_COMPRESSION 0
-#endif
-
-#if WEBSERIAL_USE_BROTLI_COMPRESSION == 1
-  extern const uint8_t WEBSERIAL_HTML[20654];
-#else
-  extern const uint8_t WEBSERIAL_HTML[22930];
-#endif
+extern const uint8_t WEBSERIAL_HTML[27278];
 
 #endif
