@@ -1,20 +1,14 @@
 /*
- * This example shows how to use WebSerial variant to send data to the browser when timing, speed and latency are important.
- * WebSerial focuses on reducing latency and increasing speed by enqueueing messages and sending them in a single packet.
+ * This example streams lines to the browser at a high rate (20 lines/s on ESP32, 2 lines/s on ESP8266).
  *
- * The responsibility is left to the caller to ensure that the messages sent are not too large or not too small and frequent.
- * For example, use of printf(), write(c), print(c), etc are not recommended.
+ * WebSerial v3 adapts automatically: when the link is idle each line is sent immediately, and when
+ * lines arrive faster than the network can carry them they are batched into larger messages.
+ * There is no separate high-performance mode any more; any Print function (print, printf, write)
+ * is fine.
  *
- * This variant can allow WebSerial to support a high speed of more than 20 messages per second like in this example.
- *
- * It can be used to log data, debug, or send data to the browser in real-time without any delay.
- *
- * You might want to look at the Logging variant to see how to better use WebSerial for streaming logging.
- *
- * You might want to control these flags to control the async library performance:
- *  -D CONFIG_ASYNC_TCP_QUEUE_SIZE=128
- *  -D CONFIG_ASYNC_TCP_RUNNING_CORE=1
- *  -D WS_MAX_QUEUED_MESSAGES=128
+ * If lines are produced faster than the link can sustain, the oldest unsent lines are dropped and
+ * the terminal shows "N lines dropped". Build with -D WSL_OVERFLOW_POLICY=WSL_OVERFLOW_BLOCK to make
+ * the writer wait for space instead (like Serial does).
  */
 #include <Arduino.h>
 
@@ -74,18 +68,11 @@ void loop() {
       buffer += dict[random(0, 62)];
     }
 
-#ifdef WSL_HIGH_PERF
-    // Using internal websocket buffer to improve memory consumption and avoid another internal copy when enqueueing the message
-    AsyncWebSocketMessageBuffer* wsBuffer = WebSerial.makeBuffer(buffer.length());
-    memmove(wsBuffer->get(), buffer.c_str(), buffer.length());
-    WebSerial.send(wsBuffer);
-#else
-    WebSerial.print(buffer);
-#endif
+    WebSerial.println(buffer);
 
     last = millis();
   }
 
-  // Required unless WSL_HIGH_PERF is defined: flushes buffered logs to the browser
+  // Housekeeping (required on RP2040/RP2350, harmless elsewhere)
   WebSerial.loop();
 }
